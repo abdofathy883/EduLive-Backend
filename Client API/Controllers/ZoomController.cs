@@ -1,0 +1,62 @@
+﻿using Core.DTOs;
+using Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Client_API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class ZoomController : ControllerBase
+    {
+        private readonly IZoomService zoomService;
+
+        public ZoomController(IZoomService zoom)
+        {
+            zoomService = zoom;
+        }
+        [HttpPost("add-new-zoom-lesson")]
+        public async Task<ActionResult<ZoomMeetingDTO>> CreateZoomMeetingAsync(CreateZoomMeetingDTO zoomMeetingDTO)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            var result = await zoomService.CreateMeetingsAsync(zoomMeetingDTO);
+            return Ok(result);
+        }
+        [HttpGet("get-zoom-meeting/{meetingId}")]
+        public async Task<ActionResult<ZoomMeetingDTO>> GetZoomMeetingById(string meetingId)
+        {
+            var meeting = await zoomService.GetMeetingAsync(meetingId);
+            if (meeting is null)
+            {
+                return NotFound();
+            }
+            return Ok(meeting);
+        }
+        [HttpPut("update-zoom-meeting{meetingId}")]
+        public async Task<IActionResult> UpdateZoomMeetingAsync(string meetingId, UpdateZoomMeetingDTO updateZoomMeeting)
+        {
+            var meeting = await zoomService.GetMeetingAsync(meetingId);
+            if (meeting is null)
+            {
+                return NotFound();
+            }
+            await zoomService.UpdateMeetingAsync(updateZoomMeeting);
+            return Ok();
+        }
+
+        //[HttpDelete("delete-zoom-meeting{meetingId}")]
+        //public async Task<IActionResult> DeleteZoomMeetingAsync(string meetingId)
+        //{
+        //    var meeting = await zoomService.
+        //    if (!meeting)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Ok();
+        //}
+    }
+}
