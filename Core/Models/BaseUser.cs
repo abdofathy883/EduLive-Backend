@@ -12,7 +12,7 @@ namespace Core.Models
     {
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
-        //public required string PhoneNumber { get; set; }
+        public required string PhoneNumber { get; set; }
         public DateOnly? DateOfBirth { get; set; }
         public List<RefreshToken> RefreshTokens { get; set; }
         public List<Notification> Notifications { get; set; }

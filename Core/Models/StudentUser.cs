@@ -10,8 +10,8 @@ namespace Core.Models
     public class StudentUser : BaseUser
     {
         public int StudentId { get; set; }
-        [ForeignKey("Certificate")]
-        public virtual string? CertificateSerialNumber { get; set; }
+        //[ForeignKey("Certificate")]
+        public virtual List<Certificate>? Certificates { get; set; }
         public List<Course>? EnrolledCourses { get; set; }
         public List<Lesson>? EnrolledLessons { get; set; }
         public List<CourseReview>? CourseReviews { get; set; }

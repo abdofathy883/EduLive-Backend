@@ -125,7 +125,7 @@ namespace Infrastructure.Services
                 // Create new account
                 existingAccount = new GoogleMeetAccount
                 {
-                    UserId = userId,
+                    UserId = userId.ToString(),
                     GoogleUserId = userInfo.GoogleUserId,
                     Email = userInfo.Email,
                     AccessToken = tokenResponse.AccessToken,

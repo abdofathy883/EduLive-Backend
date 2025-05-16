@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class InstructorReview: IDeletable
+    public class InstructorReview: IAuditable, IDeletable
     {
         public int InstructorReviewId { get; set; }
-        public int InstructorId { get; set; }
-        public int StudentId { get; set; }
+        public string InstructorId { get; set; }
         public InstructorUser Instructor { get; set; }
+        public string StudentId { get; set; }
         public StudentUser Student { get; set; }
         public int Rating { get; set; }
         public string Comment { get; set; }
         public bool IsDeleted { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

@@ -18,7 +18,9 @@ namespace Core.Models
         public string StartUrl { get; set; }
         public string Password { get; set; }
         public Guid CourseId { get; set; }
+        //public Course Course { get; set; }
         public Guid InstructorId { get; set; }
+        //public InstructorUser Instructor {  get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }

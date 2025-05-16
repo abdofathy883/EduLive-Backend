@@ -10,8 +10,10 @@ namespace Core.Models
 {
     public class Lesson
     {
-        public int CourseId { get; set; }
         public int LessonId { get; set; }
+        [ForeignKey("Course")]
+        public virtual int CourseId { get; set; }
+        public Course Course { get; set; }
         public required string Title { get; set; }
         public string? Description { get; set; }
         public int Duration { get; set; }
@@ -19,12 +21,11 @@ namespace Core.Models
         public LessonPlatform LessonPlatform { get; set; }
         public string? GoogleMeetURL { get; set; }
         public string? ZoomURL { get; set; }
-        [ForeignKey("InstructorUser")]
-        public virtual int InstructorId { get; set; }
-        [ForeignKey("StudentUser")]
-        public virtual int StudentId { get; set; }
-        public Course Course { get; set; }
         public InstructorUser Instructor { get; set; }
+        [ForeignKey("InstructorUser")]
+        public virtual string InstructorId { get; set; }
+        [ForeignKey("StudentUser")]
+        public virtual string StudentId { get; set; }
         public StudentUser Student {  get; set; }
     }
 }

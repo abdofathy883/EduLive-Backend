@@ -76,8 +76,8 @@ namespace Infrastructure.Services
         public async Task<List<Course>> GetOwnedCoursesAsync(int instructorId)
         {
             var courses = await repo.GetAllAsync();
-            var instructorCourses = courses.Where(c => c.InstructorId == instructorId).ToList();
-            return (List<Course>)courses;
+            var instructorCourses = courses.Where(c => c.InstructorId == instructorId.ToString()).ToList();
+            return instructorCourses;
         }
 
         public async Task<Course> UpdateCourseAsync(int oldCourseId, CourseDTO newCourse)

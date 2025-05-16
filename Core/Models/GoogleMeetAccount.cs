@@ -17,7 +17,7 @@ namespace Core.Models
         public DateTime TokenExpiry { get; set; }
 
         // User relationship
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public BaseUser User { get; set; }
         public bool IsDeleted { get; set; }
     }

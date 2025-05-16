@@ -9,6 +9,8 @@ using Infrastructure.SignalR;
 using Stripe;
 using Microsoft.AspNetCore.Identity;
 using Infrastructure.Repos;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Client_API
 {
@@ -32,7 +34,31 @@ namespace Client_API
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "E-Learning API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        } });
+            });
 
             JwtSettings jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtSettings>() ?? throw new Exception("Error in JWT Settings");
 
@@ -45,32 +71,40 @@ namespace Client_API
             builder.Services.AddScoped<IMeetService, MeetService>();
             builder.Services.AddScoped<IZoomAuthService, ZoomAuthService>();
             builder.Services.AddScoped<IZoomService, ZoomService>();
-            builder.Services.AddScoped<IStripeService, StripeService>();
-            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            //builder.Services.AddScoped<IStripeService, StripeService>();
+            //builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IReviewsService, InstructorReviewsService>();
             builder.Services.AddScoped<IJWT, JWTService>();
-            builder.Services.AddScoped<IWhatsAppService, WhatsAppService>();
+            //builder.Services.AddScoped<IWhatsAppService, WhatsAppService>();
             builder.Services.AddScoped<IBlogService, BlogService>();
             builder.Services.AddScoped<IContactForm, ContactFormService>();
 
             builder.Services.AddScoped<ImagesUploadsService>();
 
-            //builder.Services.AddScoped<typeof(IGenericRepo<>), typeof(GenericRepo<>));
-
             builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
 
-            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.SaveToken = true;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            //builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddHttpClient();
-
-
-            //builder.Services.AddCors(options =>
-            //{
-            //options.AddPolicy("AllowAll", policy =>
-            //    policy.AllowAnyOrigin()
-            //    .AllowAnyHeader()
-            //    .AllowAnyMethod()
-            //    .AllowCredentials();
-            //}));
 
             builder.Services.AddCors(options =>
             {
@@ -89,13 +123,14 @@ namespace Client_API
             {
                 app.MapOpenApi();
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Learning API v1"));
             }
 
-
+            app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseCors("AllowAll");
 
