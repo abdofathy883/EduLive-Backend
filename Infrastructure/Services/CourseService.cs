@@ -17,12 +17,14 @@ namespace Infrastructure.Services
         private readonly IGenericRepo<Course> repo;
         private readonly ImagesUploadsService uploadsService;
         private readonly IGenericRepo<Category> catRepo;
-        public CourseService(E_LearningDbContext _context, IGenericRepo<Course> repo, ImagesUploadsService _uploadsService, IGenericRepo<Category> catRepo)
+        private readonly IGenericRepo<InstructorUser> instructorRepo;
+        public CourseService(E_LearningDbContext _context, IGenericRepo<Course> repo, ImagesUploadsService _uploadsService, IGenericRepo<Category> catRepo, IGenericRepo<InstructorUser> instructorRepo)
         {
             dbContext = _context;
             this.repo = repo;
             uploadsService = _uploadsService;
             this.catRepo = catRepo;
+            this.instructorRepo = instructorRepo;
         }
         public async Task<Course> AddCourseAsync(CourseDTO course)
         {
@@ -81,6 +83,16 @@ namespace Infrastructure.Services
                 .Where(c => c.EnrolledStudents != null && c.EnrolledStudents.Any(s => s.StudentId == studentId))
                 .ToList();
             return studentCourses;
+        }
+
+        public async Task<InstructorUser> GetInstructorByIdAsync(string instructorId)
+        {
+            var instructor = await instructorRepo.GetByIdAsync(instructorId);
+            if (instructor is null || instructor.IsDeleted)
+            {
+                throw new KeyNotFoundException("Instructor not found or has been deleted");
+            }
+            return instructor;
         }
 
         public async Task<List<Course>> GetOwnedCoursesAsync(int instructorId)

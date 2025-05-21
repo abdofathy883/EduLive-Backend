@@ -37,7 +37,6 @@ namespace Client_API.Controllers
             var result = await courseService.UpdateCourseAsync(oldCourseId, newCourse);
             return Ok(result);
         }
-
         [HttpDelete("delete-course")]
         public async Task<IActionResult> DeleteCourse(int courseId)
         {
@@ -47,7 +46,7 @@ namespace Client_API.Controllers
             return Ok(result);
         }
         [HttpGet("all-courses")]
-        public async Task<ActionResult<List<CourseDTO>>> GetAllCoursesAsync()
+        public async Task<ActionResult<List<Course>>> GetAllCoursesAsync()
         {
             var courseList = await courseService.GetAllCoursesAsync();
             if (courseList.Count == 0) return NotFound();
@@ -73,6 +72,13 @@ namespace Client_API.Controllers
             var categories = await courseService.GetAllCategoriesAsync();
             if (categories.Count == 0) return NotFound();
             return Ok(categories);
+        }
+        [HttpGet("get-instructor/{instructorId}")]
+        public async Task<ActionResult<InstructorUser>> GetInstructorByIdAsync(string instructorId)
+        {
+            var instructor = await courseService.GetInstructorByIdAsync(instructorId);
+            if (instructor is null) return NotFound();
+            return Ok(instructor);
         }
     }
 }

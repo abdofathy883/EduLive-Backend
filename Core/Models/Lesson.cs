@@ -21,6 +21,7 @@ namespace Core.Models
         public LessonPlatform LessonPlatform { get; set; }
         public string? GoogleMeetURL { get; set; }
         public string? ZoomURL { get; set; }
+        // make properties required 
         public InstructorUser Instructor { get; set; }
         [ForeignKey("InstructorUser")]
         public virtual string InstructorId { get; set; }

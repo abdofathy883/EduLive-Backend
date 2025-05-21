@@ -10,6 +10,7 @@ namespace Core.DTOs
 {
     public class CourseDTO
     {
+        public int Id { get; set; }
         [Required]
         public string Title { get; set; }
 

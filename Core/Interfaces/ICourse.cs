@@ -19,5 +19,6 @@ namespace Core.Interfaces
         Task<bool> DeleteCourseAsync(int courseId);
 
         Task<List<Category>> GetAllCategoriesAsync();
+        Task<InstructorUser> GetInstructorByIdAsync(string instructorId);
     }
 }

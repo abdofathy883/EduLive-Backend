@@ -17,6 +17,7 @@ namespace Core.Models
         public string JoinUrl { get; set; }
         public string StartUrl { get; set; }
         public string Password { get; set; }
+        // add navigation properties for course and instructor
         public Guid CourseId { get; set; }
         //public Course Course { get; set; }
         public Guid InstructorId { get; set; }
