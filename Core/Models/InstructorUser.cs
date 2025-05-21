@@ -20,10 +20,10 @@ namespace Core.Models
         public string? CVPath { get; set; }
         [NotMapped]
         public IFormFile? CV { get; set; }
-        public string StripeConnectAccountId { get; set; }
+        public string? StripeConnectAccountId { get; set; }
         public bool HasCompletedStripeOnboarding { get; set; }
-        public List<InstructorReview> InstructorReviews { get; set; }
+        public List<InstructorReview>? InstructorReviews { get; set; }
         public virtual List<InstructorPayOut> Payouts { get; set; } = new List<InstructorPayOut>();
-        public string Bio { get; set; }
+        public string? Bio { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Infrastructure.Repos;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Http.Json;
 
 namespace Client_API
 {
@@ -62,6 +63,10 @@ namespace Client_API
 
             JwtSettings jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtSettings>() ?? throw new Exception("Error in JWT Settings");
 
+            //builder.Services.Configure<JsonOptions>(options =>
+            //{
+            //    options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+            //});
             builder.Services.AddSignalR();
             builder.Services.AddSingleton<JwtSettings>(jwtOptions);
 
@@ -129,10 +134,10 @@ namespace Client_API
             app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
-            app.UseAuthentication();
-
             app.UseCors("AllowAll");
+            app.UseAuthentication();
+            app.UseAuthorization();
+
 
             app.MapControllers();
 

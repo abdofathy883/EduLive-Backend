@@ -25,8 +25,8 @@ namespace Core.DTOs
 
         public int CategoryId { get; set; }
 
-        public int InstructorId { get; set; }
+        public string InstructorId { get; set; }
 
-        public string CertificateSerialNumber { get; set; }
+        public string? CertificateSerialNumber { get; set; }
     }
 }

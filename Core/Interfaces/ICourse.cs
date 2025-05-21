@@ -17,5 +17,7 @@ namespace Core.Interfaces
         Task<Course> AddCourseAsync(CourseDTO course);
         Task<Course> UpdateCourseAsync(int oldcourseId, CourseDTO newCourse);
         Task<bool> DeleteCourseAsync(int courseId);
+
+        Task<List<Category>> GetAllCategoriesAsync();
     }
 }

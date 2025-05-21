@@ -16,11 +16,13 @@ namespace Infrastructure.Services
         private readonly E_LearningDbContext dbContext;
         private readonly IGenericRepo<Course> repo;
         private readonly ImagesUploadsService uploadsService;
-        public CourseService(E_LearningDbContext _context, IGenericRepo<Course> repo, ImagesUploadsService _uploadsService)
+        private readonly IGenericRepo<Category> catRepo;
+        public CourseService(E_LearningDbContext _context, IGenericRepo<Course> repo, ImagesUploadsService _uploadsService, IGenericRepo<Category> catRepo)
         {
             dbContext = _context;
             this.repo = repo;
             uploadsService = _uploadsService;
+            this.catRepo = catRepo;
         }
         public async Task<Course> AddCourseAsync(CourseDTO course)
         {
@@ -32,7 +34,9 @@ namespace Infrastructure.Services
                 NuOfLessons = course.NuOfLessons,
                 OriginalPrice = course.OriginalPrice,
                 SalePrice = course.SalePrice,
-                CourseImagePath = courseImage
+                CourseImagePath = courseImage,
+                CategoryId = course.CategoryId,
+                InstructorId = course.InstructorId
             };
             await repo.AddAsync(newCourse);
             await repo.SaveAllAsync();
@@ -46,6 +50,12 @@ namespace Infrastructure.Services
             course.IsDeleted = true;
             repo.Update(course);
             return await repo.SaveAllAsync();
+        }
+
+        public async Task<List<Category>> GetAllCategoriesAsync()
+        {
+            var categories = await catRepo.GetAllAsync();
+            return (List<Category>)categories;
         }
 
         public async Task<List<Course>> GetAllCoursesAsync()

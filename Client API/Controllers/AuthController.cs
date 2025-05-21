@@ -81,7 +81,8 @@ namespace Client_API.Controllers
             return Ok(new { results.Message });
         }
         [HttpPost("register-instructor")]
-        public async Task<IActionResult> RegisterInstructor(InstructorRegisterDTO registerDTO)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> RegisterInstructor([FromForm] InstructorRegisterDTO registerDTO)
         {
             if (!ModelState.IsValid)
             {

@@ -1,5 +1,6 @@
 ﻿using Core.DTOs;
 using Core.Interfaces;
+using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Client_API.Controllers
@@ -23,7 +24,7 @@ namespace Client_API.Controllers
             var newCourse = await courseService.AddCourseAsync(course);
             if (newCourse is null)
             {
-                return NotFound();
+                return NotFound("not foundddd");
             }
             return base.Ok((object)newCourse);
         }
@@ -65,6 +66,13 @@ namespace Client_API.Controllers
             var ownedCourses = await courseService.GetOwnedCoursesAsync(instructorId);
             if (ownedCourses is null) return NotFound();
             return Ok(ownedCourses);
+        }
+        [HttpGet("all-categories")]
+        public async Task<ActionResult<Category>> GetAllCoursesCategoriesAsync()
+        {
+            var categories = await courseService.GetAllCategoriesAsync();
+            if (categories.Count == 0) return NotFound();
+            return Ok(categories);
         }
     }
 }

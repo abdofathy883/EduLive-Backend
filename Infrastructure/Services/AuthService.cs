@@ -2,6 +2,7 @@
 using Core.Enums;
 using Core.Interfaces;
 using Core.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,8 +13,17 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
-    public class AuthService(UserManager<BaseUser> userManager, IJWT jWT) : IAuth
+    public class AuthService : IAuth
     {
+        private readonly ImagesUploadsService uploadsService;
+        private readonly UserManager<BaseUser> userManager;
+        private readonly IJWT jWT;
+        public AuthService(ImagesUploadsService images, UserManager<BaseUser> manager, IJWT _jWT)
+        {
+            uploadsService = images;
+            userManager = manager;
+            jWT = _jWT;
+        }
         public async Task<AuthDTO> InstructorRegisterAsync(InstructorRegisterDTO registerDTO)
         {
             var validateErrors = await ValidateInstructorRegisterAsync(registerDTO);
@@ -21,24 +31,33 @@ namespace Infrastructure.Services
             {
                 return FailResult(string.Join(", ", validateErrors));
             }
+
+            // Convert the VideoPath (string) to an IFormFile before calling UploadVideo
+            var cv = await uploadsService.UploadPDF(registerDTO.CvPath, registerDTO.FirstName + " " + registerDTO.LastName);
+            var video = await uploadsService.UploadVideo(registerDTO.VideoPath, registerDTO.FirstName + " " + registerDTO.LastName);
             var user = new InstructorUser
             {
                 FirstName = registerDTO.FirstName,
                 LastName = registerDTO.LastName,
                 Email = registerDTO.Email,
                 PhoneNumber = registerDTO.PhoneNumber,
-                CVPath = registerDTO.CvPath,
-                IntroVideoPath = registerDTO.VideoPath
+                CVPath = cv,
+                IntroVideoPath = video,
+                Bio = registerDTO.Bio,
+                DateOfBirth = registerDTO.DateOfBirth,
+                UserName = registerDTO.Email.Split("@")[0],
             };
 
-            var result = await userManager.CreateAsync(user);
+            var result = await userManager.CreateAsync(user, registerDTO.Password);
             if (!result.Succeeded)
             {
                 return FailResult(string.Join(", ", validateErrors));
             }
+            await userManager.AddToRoleAsync(user, UserRoles.Instructor.ToString());
+
             var authDTO = new AuthDTO
             {
-                IsAuthenticated = false,
+                IsAuthenticated = true,
                 Message = "تم استلام طلبكم وسيتم التواصل معكم قريبا"
             };
             return authDTO;
@@ -59,6 +78,13 @@ namespace Infrastructure.Services
             authDto.IsAuthenticated = true;
             authDto.Email = user.Email;
             authDto.UserName = user.UserName;
+            authDto.UserId = user.Id;
+            authDto.FirstName = user.FirstName;
+            authDto.LastName = user.LastName;
+            authDto.PhoneNumber = user.PhoneNumber;
+            authDto.DateOfBirth = (DateOnly)user.DateOfBirth;
+            var roles = await userManager.GetRolesAsync(user);
+            authDto.Roles = roles.ToList();
             authDto.Token = await jWT.GenerateAccessTokenAsync(user);
 
             if (user.RefreshTokens.Any(t => t.IsActive))
@@ -74,6 +100,12 @@ namespace Infrastructure.Services
                 authDto.RefreshTokenExpiration = RefreshToken.ExpiresOn;
                 user.RefreshTokens.Add(RefreshToken);
                 await userManager.UpdateAsync(user);
+            }
+            if (user is InstructorUser instructor)
+            {
+                authDto.CV = instructor.CVPath;
+                authDto.IntroVideo = instructor.IntroVideoPath;
+                authDto.Bio = instructor.Bio;
             }
             authDto.Message = "تم تسجيل الدخول بنجاح";
             return authDto;
@@ -91,14 +123,15 @@ namespace Infrastructure.Services
             {
                 return FailResult(string.Join(", ", validateErrors));
             }
-
+            var userName = registerDTO.Email.Split("@")[0];
             var user = new StudentUser
             {
                 FirstName = registerDTO.FirstName,
                 LastName = registerDTO.LastName,
                 Email = registerDTO.Email,
                 PhoneNumber = registerDTO.PhoneNumber,
-                DateOfBirth = registerDTO.DateOfBirth
+                DateOfBirth = registerDTO.DateOfBirth,
+                UserName = userName
             };
             var result = await userManager.CreateAsync(user, registerDTO.Password);
 
@@ -106,9 +139,9 @@ namespace Infrastructure.Services
 
             if (!result.Succeeded)
             {
-                await userManager.AddToRoleAsync(user, UserRoles.Student.ToString());
                 return FailResult(string.Join(", ", validateErrors));
             }
+                await userManager.AddToRoleAsync(user, UserRoles.Student.ToString());
 
             var authDTO = new AuthDTO
             {
