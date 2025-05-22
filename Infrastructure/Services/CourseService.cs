@@ -95,7 +95,7 @@ namespace Infrastructure.Services
             return instructor;
         }
 
-        public async Task<List<Course>> GetOwnedCoursesAsync(int instructorId)
+        public async Task<List<Course>> GetOwnedCoursesAsync(string instructorId)
         {
             var courses = await repo.GetAllAsync();
             var instructorCourses = courses.Where(c => c.InstructorId == instructorId.ToString()).ToList();

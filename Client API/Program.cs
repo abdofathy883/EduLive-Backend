@@ -75,6 +75,8 @@ namespace Client_API
 
             builder.Services.AddScoped<IAuth, AuthService>();
             builder.Services.AddScoped<ICourse, CourseService>();
+            //Google Meet Registration
+            builder.Services.AddHttpClient<IGoogleMeetAuthService, GoogleMeetAuthService>();
             builder.Services.AddScoped<IGoogleMeetAuthService, GoogleMeetAuthService>();
             builder.Services.AddScoped<IMeetService, MeetService>();
             //Zoom Registration

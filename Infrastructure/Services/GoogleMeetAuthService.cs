@@ -2,8 +2,10 @@
 using Core.Interfaces;
 using Core.Models;
 using Core.Responses;
+using Core.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +22,17 @@ namespace Infrastructure.Services
         private readonly IGenericRepo<GoogleMeetAccount> repo;
         private readonly IHttpClientFactory httpClient;
         private readonly ILogger<GoogleMeetAuthService> logger;
+        private readonly IOptions<GoogleSettings> meetSettings;
 
-        public GoogleMeetAuthService(IGenericRepo<GoogleMeetAccount> genericRepo, IHttpClientFactory httpClientFactory, ILogger<GoogleMeetAuthService> _logger)
+        //userId is the key in the GoogleMeetAccount table
+        public GoogleMeetAuthService(IGenericRepo<GoogleMeetAccount> genericRepo, IHttpClientFactory httpClientFactory, ILogger<GoogleMeetAuthService> _logger, IOptions<GoogleSettings> options)
         {
             repo = genericRepo;
             httpClient = httpClientFactory;
             logger = _logger;
+            meetSettings = options;
         }
-        public async Task DisconnectAccountAsync(int userId)
+        public async Task DisconnectAccountAsync(string userId)
         {
             var account = await repo.GetByIdAsync(userId);
 
@@ -38,7 +43,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<string> GetAccessTokenAsync(int userId)
+        public async Task<string> GetAccessTokenAsync(string userId)
         {
             var account = await repo.GetByIdAsync(userId);
             //var account = await _context.GoogleMeetAccounts
@@ -64,7 +69,7 @@ namespace Infrastructure.Services
             return account.AccessToken;
         }
 
-        public async Task<GoogleMeetAccountDTO> GetAccountByUserIdAsync(int userId)
+        public async Task<GoogleMeetAccountDTO> GetAccountByUserIdAsync(string userId)
         {
             var account = await repo.GetByIdAsync(userId);
 
@@ -86,8 +91,8 @@ namespace Infrastructure.Services
 
         public Task<string> GetAuthorizationUrlAsync()
         {
-            var clientId = ""; // _configuration["GoogleMeet:ClientId"];
-            var redirectUri = ""; // _configuration["GoogleMeet:RedirectUri"];
+            var clientId = meetSettings.Value.ClientId;
+            var redirectUri = meetSettings.Value.RedirectUrl;
             var scope = "https://www.googleapis.com/auth/calendar";
 
             var authUrl = $"https://accounts.google.com/o/oauth2/v2/auth?" +
@@ -101,15 +106,12 @@ namespace Infrastructure.Services
             return Task.FromResult(authUrl);
         }
 
-        public async Task<GoogleMeetAccountDTO> HandleAuthCallbackAsync(string code, int userId)
+        public async Task<GoogleMeetAccountDTO> HandleAuthCallbackAsync(string code, string userId)
         {
             var tokenResponse = await ExchangeCodeForTokensAsync(code);
             var userInfo = await GetUserInfoAsync(tokenResponse.AccessToken);
 
             var existingAccount = await repo.GetByIdAsync(userId);
-            //var existingAccount = allAccounts
-            //    //await _context.GoogleMeetAccounts
-            //    .FirstOrDefaultAsync(a => a.UserId == userId);
 
             if (existingAccount != null)
             {
@@ -133,7 +135,6 @@ namespace Infrastructure.Services
                     TokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn)
                 };
                 await repo.AddAsync(existingAccount);
-                //_context.GoogleMeetAccounts.Add(existingAccount);
             }
 
             await repo.SaveAllAsync();
@@ -146,7 +147,7 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<bool> IsAccountConnectedAsync(int userId)
+        public async Task<bool> IsAccountConnectedAsync(string userId)
         {
             var isAccountConnected = await repo.GetByIdAsync(userId);
             if (isAccountConnected is null)
@@ -158,9 +159,9 @@ namespace Infrastructure.Services
 
         private async Task<GoogleMeetAuthResponse> ExchangeCodeForTokensAsync(string code)
         {
-            var clientId = ""; // _configuration["GoogleMeet:ClientId"];
-            var clientSecret = ""; //_configuration["GoogleMeet:ClientSecret"];
-            var redirectUri = ""; // _configuration["GoogleMeet:RedirectUri"];
+            var clientId = meetSettings.Value.ClientId;
+            var clientSecret = meetSettings.Value.ClientSecret;
+            var redirectUri = meetSettings.Value.RedirectUrl;
 
             var http = httpClient.CreateClient();
 
@@ -184,8 +185,8 @@ namespace Infrastructure.Services
 
         private async Task<GoogleMeetAuthResponse> RefreshAccessTokenAsync(string refreshToken)
         {
-            var clientId = ""; //_configuration["GoogleMeet:ClientId"];
-            var clientSecret = ""; // _configuration["GoogleMeet:ClientSecret"];
+            var clientId = meetSettings.Value.ClientId;
+            var clientSecret = meetSettings.Value.ClientSecret;
 
             var http = httpClient.CreateClient();
 

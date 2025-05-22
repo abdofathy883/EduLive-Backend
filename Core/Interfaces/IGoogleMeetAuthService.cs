@@ -10,10 +10,10 @@ namespace Core.Interfaces
     public interface IGoogleMeetAuthService
     {
         Task<string> GetAuthorizationUrlAsync();
-        Task<GoogleMeetAccountDTO> HandleAuthCallbackAsync(string code, int userId);
-        Task<GoogleMeetAccountDTO> GetAccountByUserIdAsync(int userId);
-        Task DisconnectAccountAsync(int userId);
-        Task<bool> IsAccountConnectedAsync(int userId);
-        Task<string> GetAccessTokenAsync(int userId);
+        Task<GoogleMeetAccountDTO> HandleAuthCallbackAsync(string code, string userId);
+        Task<GoogleMeetAccountDTO> GetAccountByUserIdAsync(string userId);
+        Task DisconnectAccountAsync(string userId);
+        Task<bool> IsAccountConnectedAsync(string userId);
+        Task<string> GetAccessTokenAsync(string userId);
     }
 }

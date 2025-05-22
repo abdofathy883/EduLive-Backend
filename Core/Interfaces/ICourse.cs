@@ -12,7 +12,7 @@ namespace Core.Interfaces
     {
         Task<List<Course>> GetAllCoursesAsync();
         Task<List<Course>> GetEnrolledCoursesAsync(int studentId);
-        Task<List<Course>> GetOwnedCoursesAsync(int instructorId);
+        Task<List<Course>> GetOwnedCoursesAsync(string instructorId);
         Task<Course> GetCourseByIdAsync(int courseId);
         Task<Course> AddCourseAsync(CourseDTO course);
         Task<Course> UpdateCourseAsync(int oldcourseId, CourseDTO newCourse);

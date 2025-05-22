@@ -59,8 +59,8 @@ namespace Client_API.Controllers
             if (enrolledCourses is null) return NotFound();
             return Ok(enrolledCourses);
         }
-        [HttpGet("owned-course")]
-        public async Task<ActionResult<CourseDTO>> GetOwnedCoursesAsync(int instructorId)
+        [HttpGet("owned-course/{instructorId}")]
+        public async Task<ActionResult<List<CourseDTO>>> GetOwnedCoursesAsync(string instructorId)
         {
             var ownedCourses = await courseService.GetOwnedCoursesAsync(instructorId);
             if (ownedCourses is null) return NotFound();
