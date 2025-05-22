@@ -2,6 +2,7 @@
 using Core.Interfaces;
 using Core.Models;
 using Core.Responses;
+using Core.Settings;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -20,25 +21,24 @@ namespace Infrastructure.Services
     public class ZoomAuthService : IZoomAuthService
     {
         private readonly HttpClient httpClient;
-        //private readonly IOptions<>
+        private readonly IOptions<ZoomSettings> options;
         private readonly E_LearningDbContext dbContext;
 
-        public ZoomAuthService(HttpClient _httpClient, E_LearningDbContext context)
+        public ZoomAuthService(HttpClient _httpClient, E_LearningDbContext context, IOptions<ZoomSettings> _options)
         {
             httpClient = _httpClient;
             dbContext = context;
+            options = _options;
         }
         public string GetAuthorizationUrl()
         {
-            //var redirectUrl = _zoomSettings.Value.RedirectUrl;
-            //var clientId = _zoomSettings.Value.ClientId;
+            var redirectUrl = options.Value.RedirectUrl;
+            var clientId = options.Value.ClientId;
 
-            var authUrl = "";
-                
-                //$"https://zoom.us/oauth/authorize" +
-                //          $"?response_type=code" +
-                //          $"&client_id={clientId}" +
-                //          $"&redirect_uri={Uri.EscapeDataString(redirectUrl)}";
+            var authUrl = $"https://zoom.us/oauth/authorize" +
+                      $"?response_type=code" +
+                      $"&client_id={clientId}" +
+                      $"&redirect_uri={Uri.EscapeDataString(redirectUrl)}";
 
             return authUrl;
         }
@@ -78,9 +78,9 @@ namespace Infrastructure.Services
 
         public async Task<ZoomUserConnectionDTO> HandleOAuthCallback(string code, Guid userId)
         {
-            var redirectUrl = "";//_zoomSettings.Value.RedirectUrl;
-            var clientId = ""; // _zoomSettings.Value.ClientId;
-            var clientSecret = ""; // _zoomSettings.Value.ClientSecret;
+            var redirectUrl = options.Value.RedirectUrl;
+            var clientId = options.Value.ClientId;
+            var clientSecret = options.Value.ClientSecret;
 
             var tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
             {
@@ -164,8 +164,8 @@ namespace Infrastructure.Services
             if (connection == null)
                 throw new ApplicationException("No Zoom connection found for user");
 
-            //var clientId = _zoomSettings.Value.ClientId;
-            //var clientSecret = _zoomSettings.Value.ClientSecret;
+            var clientId = options.Value.ClientId;
+            var clientSecret = options.Value.ClientSecret;
 
             var refreshRequest = new FormUrlEncodedContent(new Dictionary<string, string>
             {
@@ -173,11 +173,11 @@ namespace Infrastructure.Services
                 ["refresh_token"] = connection.RefreshToken
             });
 
-            //var authHeaderValue = Convert.ToBase64String(
-            //    Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
+            var authHeaderValue = Convert.ToBase64String(
+                Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
 
-            //httpClient.DefaultRequestHeaders.Authorization =
-            //    new AuthenticationHeaderValue("Basic", authHeaderValue);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", authHeaderValue);
 
             var response = await httpClient.PostAsync(
                 "https://zoom.us/oauth/token", refreshRequest);
@@ -205,14 +205,14 @@ namespace Infrastructure.Services
 
             if (connection == null) return false;
 
-            //var clientId = _zoomSettings.Value.ClientId;
-            //var clientSecret = _zoomSettings.Value.ClientSecret;
+            var clientId = options.Value.ClientId;
+            var clientSecret = options.Value.ClientSecret;
 
-            //var authHeaderValue = Convert.ToBase64String(
-            //    Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
+            var authHeaderValue = Convert.ToBase64String(
+                Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
 
-            //httpClient.DefaultRequestHeaders.Authorization =
-            //    new AuthenticationHeaderValue("Basic", authHeaderValue);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", authHeaderValue);
 
             var revokeRequest = new FormUrlEncodedContent(new Dictionary<string, string>
             {

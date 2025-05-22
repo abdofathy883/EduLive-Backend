@@ -12,6 +12,7 @@ using Infrastructure.Repos;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Http.Json;
+using Core.Settings;
 
 namespace Client_API
 {
@@ -29,7 +30,6 @@ namespace Client_API
                 .AddEntityFrameworkStores<E_LearningDbContext>()
                 .AddDefaultTokenProviders();
 
-            //builder.Services.AddIdentity<BaseUser>().
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -70,11 +70,16 @@ namespace Client_API
             builder.Services.AddSignalR();
             builder.Services.AddSingleton<JwtSettings>(jwtOptions);
 
+            //Settings
+            builder.Services.Configure<ZoomSettings>(builder.Configuration.GetSection("ZoomSettings"));
+
             builder.Services.AddScoped<IAuth, AuthService>();
             builder.Services.AddScoped<ICourse, CourseService>();
             builder.Services.AddScoped<IGoogleMeetAuthService, GoogleMeetAuthService>();
             builder.Services.AddScoped<IMeetService, MeetService>();
+            //Zoom Registration
             builder.Services.AddScoped<IZoomAuthService, ZoomAuthService>();
+            builder.Services.AddHttpClient<IZoomAuthService, ZoomAuthService>();
             builder.Services.AddScoped<IZoomService, ZoomService>();
             //builder.Services.AddScoped<IStripeService, StripeService>();
             //builder.Services.AddScoped<IPaymentService, PaymentService>();
