@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Http.Json;
 using Core.Settings;
+using MailKit;
 
 namespace Client_API
 {
@@ -75,6 +76,8 @@ namespace Client_API
 
             builder.Services.AddScoped<IAuth, AuthService>();
             builder.Services.AddScoped<ICourse, CourseService>();
+            //Email Registration
+            builder.Services.AddScoped<IEmailService, EmailService>();
             //Google Meet Registration
             builder.Services.AddHttpClient<IGoogleMeetAuthService, GoogleMeetAuthService>();
             builder.Services.AddScoped<IGoogleMeetAuthService, GoogleMeetAuthService>();

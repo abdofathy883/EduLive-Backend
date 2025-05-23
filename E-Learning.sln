@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client API", "Client API\Client API.csproj", "{89BF7B1F-9B1E-4075-937A-C0A312CF5163}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eLearning-Admin", "eLearning-Admin\eLearning-Admin.csproj", "{ED000E25-ADB0-40F9-A13F-616161C899EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{89BF7B1F-9B1E-4075-937A-C0A312CF5163}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89BF7B1F-9B1E-4075-937A-C0A312CF5163}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89BF7B1F-9B1E-4075-937A-C0A312CF5163}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED000E25-ADB0-40F9-A13F-616161C899EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED000E25-ADB0-40F9-A13F-616161C899EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED000E25-ADB0-40F9-A13F-616161C899EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED000E25-ADB0-40F9-A13F-616161C899EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -15,20 +15,6 @@ namespace Infrastructure.Configrations
     {
         public E_LearningDbContext CreateDbContext(string[] args)
         {
-            //var basePath = Path.Combine(Directory.GetCurrentDirectory(), "../Client API");
-
-            //var configuration = new ConfigurationBuilder()
-            //.SetBasePath(basePath)
-            //.AddJsonFile("appsettings.json")
-            //.Build();
-
-            //var builder = new DbContextOptionsBuilder<E_LearningDbContext>();
-            //var connectionString = configuration.GetConnectionString("DefaultConnectionString");
-
-            //builder.UseSqlServer(connectionString);
-
-            //return new E_LearningDbContext(builder.Options);
-
             var currentDir = Directory.GetCurrentDirectory();
 
             // Go up one level to the solution directory
