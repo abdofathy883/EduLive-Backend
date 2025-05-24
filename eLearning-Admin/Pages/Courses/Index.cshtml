@@ -1,0 +1,58 @@
+﻿@page
+@model eLearning_Admin.Pages.Courses.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>الدورات التعليمية</h1>
+
+<p>
+    <a asp-page="Create">اضافة دورة جديدة</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th> العنوان</th>
+            <th>عدد الحصص</th>
+            <th>السعر الاصلي</th>
+            <th>سعر التخفيض</th>
+            <th>الصورة</th>
+            <th>التصنيف</th>
+            <th>المعلم</th>
+            <th>اجراء</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Course) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NuOfLessons)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OriginalPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SalePrice)
+            </td>
+            <td>
+                    <img src="item.CourseImagePath" alt="Alternate Text" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Instructor.FirstName)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.ID" class="btn btn-success">تعديل</a>
+                @* <a asp-page="./Details" asp-route-id="@item.ID">Details</a> | *@
+                <a asp-page="./Delete" asp-route-id="@item.ID" class="btn btn-danger">حذف</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,5 +1,8 @@
+using Core.Interfaces;
 using Core.Models;
 using Infrastructure.Data;
+using Infrastructure.Repos;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using E_LearningDbContextAlias = Infrastructure.Data.E_LearningDbContext;
@@ -22,6 +25,14 @@ namespace eLearning_Admin
                 .AddDefaultTokenProviders();
 
             builder.Services.AddRazorPages();
+
+            //builder.Services.AddScoped<>
+            builder.Services.AddScoped<ICourse, CourseService>();
+            builder.Services.AddScoped<IBlogService, BlogService>();
+
+            builder.Services.AddScoped<ImagesUploadsService>();
+            builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
+
 
             var app = builder.Build();
 

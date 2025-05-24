@@ -18,7 +18,7 @@ namespace Infrastructure.Data
         {
             
         }
-        
+        public DbSet<BaseUser> BaseUsers { get; set; }
         public DbSet<AdminUser> AdminUsers { get; set; }
         public DbSet<StudentUser> StudentUsers { get; set; }
         public DbSet<InstructorUser> InstructorUsers { get; set; }

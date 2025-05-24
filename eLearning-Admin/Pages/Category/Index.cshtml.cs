@@ -25,5 +25,23 @@ namespace eLearning_Admin.Pages.Category
         {
             Category = await _context.Categories.ToListAsync();
         }
+
+        public async Task<IActionResult> OnPostAsync(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null)
+            {
+                Category = (IList<Core.Models.Category>)category;
+                _context.Categories.Remove((Core.Models.Category)Category);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToPage("./Index");
+        }
     }
 }

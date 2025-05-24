@@ -25,5 +25,6 @@ namespace Core.Models
         public List<InstructorReview>? InstructorReviews { get; set; }
         public virtual List<InstructorPayOut> Payouts { get; set; } = new List<InstructorPayOut>();
         public string? Bio { get; set; }
+        public bool IsApproved { get; set; } = false;
     }
 }

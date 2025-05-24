@@ -46,6 +46,7 @@ namespace Infrastructure.Services
                 Bio = registerDTO.Bio,
                 DateOfBirth = registerDTO.DateOfBirth,
                 UserName = registerDTO.Email.Split("@")[0],
+                IsApproved = false
             };
 
             var result = await userManager.CreateAsync(user, registerDTO.Password);
@@ -247,32 +248,32 @@ namespace Infrastructure.Services
 
             return errors;
         }
-        public async Task<AuthDTO> ApproveInstructorAsync(string instructorId)
-        {
-            //To be continued
-            //var test = await userManager.
-            var instructor = await userManager.FindByIdAsync(instructorId);
-            if (instructor is null)
-            {
-                throw new KeyNotFoundException("User can not be found");
-            }
+        //public async Task<AuthDTO> ApproveInstructorAsync(string instructorId)
+        //{
+        //    //To be continued
+        //    //var test = await userManager.
+        //    var instructor = await userManager.FindByIdAsync(instructorId);
+        //    if (instructor is null)
+        //    {
+        //        throw new KeyNotFoundException("User can not be found");
+        //    }
 
-            var newInstructor = new InstructorUser
-            {
-                FirstName = instructor.FirstName,
-                LastName = instructor.LastName,
-                Email = instructor.Email,
-                PhoneNumber = instructor.PhoneNumber,
-                //CV = instructor.
-            };
-            await userManager.AddToRoleAsync(instructor, UserRoles.Instructor.ToString());
-            //await userManager.addas
-            return new AuthDTO
-            {
-                IsAuthenticated = true,
-                Message = "تم تاكيد تسجيلك على منصتنا ك معلم"
-            };
-        }
+        //    var newInstructor = new InstructorUser
+        //    {
+        //        FirstName = instructor.FirstName,
+        //        LastName = instructor.LastName,
+        //        Email = instructor.Email,
+        //        PhoneNumber = instructor.PhoneNumber,
+        //        //CV = instructor.
+        //    };
+        //    await userManager.AddToRoleAsync(instructor, UserRoles.Instructor.ToString());
+        //    //await userManager.addas
+        //    return new AuthDTO
+        //    {
+        //        IsAuthenticated = true,
+        //        Message = "تم تاكيد تسجيلك على منصتنا ك معلم"
+        //    };
+        //}
 
         public static AuthDTO FailResult(string message)
         {
@@ -333,6 +334,34 @@ namespace Infrastructure.Services
             user.IsDeleted = true;
             var result = await userManager.UpdateAsync(user);
             return result.Succeeded;
+        }
+
+        public async Task<AuthDTO> ApproveInstructorAsync(string instructorId)
+        {
+            var user = await userManager.FindByIdAsync(instructorId);
+            if (user is not InstructorUser instructor)
+            {
+                throw new KeyNotFoundException("Instructor not found");
+            }
+            if (instructor.IsApproved)
+            {
+                return new AuthDTO
+                {
+                    IsAuthenticated = true,
+                    Message = "المعلم تم تأكيده بالفعل"
+                };
+            }
+            instructor.IsApproved = true;
+            var result = await userManager.UpdateAsync(instructor);
+            if (!result.Succeeded)
+            {
+                return FailResult("Failed to approve instructor");
+            }
+            return new AuthDTO
+            {
+                IsAuthenticated = true,
+                Message = "تم الموافقة على المعلم بنجاح"
+            };
         }
     }
 }

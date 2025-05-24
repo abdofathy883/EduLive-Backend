@@ -9,17 +9,17 @@ using Core.Models;
 using Infrastructure.Data;
 using Core.Interfaces;
 
-namespace eLearning_Admin.Pages.Category
+namespace eLearning_Admin.Pages.Blog
 {
     public class CreateModel : PageModel
     {
         private readonly Infrastructure.Data.E_LearningDbContext _context;
-        private readonly IGenericRepo<Core.Models.Category> repo;
+        private readonly IBlogService blogService;
 
-        public CreateModel(Infrastructure.Data.E_LearningDbContext context, IGenericRepo<Core.Models.Category> genericRepo)
+        public CreateModel(Infrastructure.Data.E_LearningDbContext context, IBlogService blog)
         {
             _context = context;
-            repo = genericRepo;
+            blogService = blog;
         }
 
         public IActionResult OnGet()
@@ -28,7 +28,7 @@ namespace eLearning_Admin.Pages.Category
         }
 
         [BindProperty]
-        public Core.Models.Category Category { get; set; } = default!;
+        public Core.Models.Blog Blog { get; set; } = default!;
 
         // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
@@ -37,10 +37,9 @@ namespace eLearning_Admin.Pages.Category
             {
                 return Page();
             }
-            await repo.AddAsync(Category);
-            await repo.SaveAllAsync();
-            //_context.Categories.Add(Category);
-            //await _context.SaveChangesAsync();
+            //await blogService.
+            _context.Blogs.Add(Blog);
+            await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

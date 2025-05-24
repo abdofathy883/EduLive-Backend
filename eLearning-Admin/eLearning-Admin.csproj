@@ -19,11 +19,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Areas\Identity\Data\" />
+    <Folder Include="Pages\Instructors\" />
+    <Folder Include="Pages\Admins\" />
+    <Folder Include="Pages\Students\" />
   </ItemGroup>
 
 </Project>

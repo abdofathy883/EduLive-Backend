@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,21 +10,44 @@
     <link rel="stylesheet" href="~/eLearning_Admin.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">eLearning</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+    <div class="row vh-100">
+        <div class="col-2 sidebar">
+            <header>
+        <nav class="navbar navbar-expand-sm mb-3">
+            <div class="container d-flex flex-column align-items-start">
+                <a class="navbar-brand" asp-area="" asp-page="/Index">
+                    <img src="/assets/Logo.webp" width="150" height="150"/>
+                </a>
+                <div class="justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-white" asp-area="" asp-page="/Index">الرئيسية</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Category/Index">Category</a>
+                                    <a class="nav-link text-white" asp-area="" asp-page="/Category/Index">التصنيفات</a>
+                        </li>
+                        <li class="nav-item">
+                                    <a class="nav-link text-white" asp-area="" asp-page="/Courses/Index">الدورات التعليمية</a>
+                        </li>
+                        <li class="nav-item">
+                                    <a class="nav-link text-white" asp-area="" asp-page="/Blog/Index">المقالات</a>
+                        </li>
+                        <li class="nav-item">
+                                    <a class="nav-link text-white" asp-area="" asp-page="/Blog/Index">الاعضاء</a>
+                            <ul>
+                                <li class="nav-item">
+                                            <a href="#" class="nav-link text-white">الادمن</a>
+                                </li>
+                                <li class="nav-item">
+                                            <a href="#" class="nav-link text-white">المعلمين</a>
+                                </li>
+                                <li class="nav-item">
+                                            <a href="#" class="nav-link text-white">الطلاب</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                                    <a class="nav-link text-white" asp-area="" asp-page="/ContactForm/Index">فورم التواصل</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -32,10 +55,16 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+        </div>
+        <div class="col-10">
+            <div class="container py-4">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+
+        </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
