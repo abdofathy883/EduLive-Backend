@@ -14,6 +14,7 @@ namespace Infrastructure.Data.ModelConfigrations
         public void Configure(EntityTypeBuilder<BaseUser> builder)
         {
             
+            
             builder.Property(p => p.Email)
                 .IsRequired()
                 .HasMaxLength(50);
@@ -22,8 +23,8 @@ namespace Infrastructure.Data.ModelConfigrations
                 .IsRequired();
             builder.Property(p => p.LastName)
                 .IsRequired();
-            builder.Property(p => p.PhoneNumber)
-                .IsRequired();
+            //builder.Property(p => p.PhoneNumber)
+            //    .IsRequired();
             builder.Property(p => p.IsDeleted)
                 .IsRequired()
                 .HasDefaultValue(false);

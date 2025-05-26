@@ -9,7 +9,7 @@ namespace Core.Models
     public class ZoomUserConnection
     {
         public Guid Id { get; set; }
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public string ZoomUserId { get; set; }
         public string ZoomEmail { get; set; }
         public string AccessToken { get; set; }

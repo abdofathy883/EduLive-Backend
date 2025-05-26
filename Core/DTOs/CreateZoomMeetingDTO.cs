@@ -12,7 +12,8 @@ namespace Core.DTOs
         public string Description { get; set; }
         public DateTime StartTime { get; set; }
         public int Duration { get; set; }
-        public Guid CourseId { get; set; }
-        public Guid InstructorId { get; set; }
+        public int CourseId { get; set; }
+        public string InstructorId { get; set; }
+        public string StudentId { get; set; }
     }
 }

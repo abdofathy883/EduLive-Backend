@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class GoogleMeetAccount: IDeletable
+    public class GoogleMeetAccount: IDeletable, IAuditable
     {
         public int Id { get; set; }
         public string GoogleUserId { get; set; }
@@ -15,10 +15,10 @@ namespace Core.Models
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
         public DateTime TokenExpiry { get; set; }
-
-        // User relationship
         public string UserId { get; set; }
         public BaseUser User { get; set; }
         public bool IsDeleted { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

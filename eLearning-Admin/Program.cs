@@ -1,10 +1,14 @@
 using Core.Interfaces;
 using Core.Models;
+using Infrastructure.Configrations;
 using Infrastructure.Data;
 using Infrastructure.Repos;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using E_LearningDbContextAlias = Infrastructure.Data.E_LearningDbContext;
 
 namespace eLearning_Admin
@@ -26,12 +30,41 @@ namespace eLearning_Admin
 
             builder.Services.AddRazorPages();
 
+
             //builder.Services.AddScoped<>
             builder.Services.AddScoped<ICourse, CourseService>();
             builder.Services.AddScoped<IBlogService, BlogService>();
+            builder.Services.AddScoped<IAuth, AuthService>();
 
             builder.Services.AddScoped<ImagesUploadsService>();
             builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
+
+            JwtSettings jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtSettings>() ?? throw new Exception("Error in JWT Settings");
+            builder.Services.AddSingleton<JwtSettings>(jwtOptions);
+            builder.Services.AddScoped<IJWT, JWTService>();
+
+
+
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.SaveToken = true;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
 
             var app = builder.Build();

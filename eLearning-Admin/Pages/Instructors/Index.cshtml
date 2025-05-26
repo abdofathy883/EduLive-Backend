@@ -1,0 +1,37 @@
+﻿@page
+@model eLearning_Admin.Pages.Instructors.IndexModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>المعلمين</h1>
+<hr />
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">اضافة معلم جديد</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>الاسم</th>
+            <th>البريد الالكتروني</th>
+            <th>رقم الهاتف</th>
+            <th>اجراء</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Instructors)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)</td>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-success">تعديل</a>
+                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-danger">حذف</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

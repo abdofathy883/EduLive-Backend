@@ -9,6 +9,7 @@ using Core.Models;
 using Infrastructure.Data;
 using Core.Interfaces;
 using Core.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace eLearning_Admin.Pages.Courses
 {
@@ -26,7 +27,14 @@ namespace eLearning_Admin.Pages.Courses
         public IActionResult OnGet()
         {
         ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title");
-        ViewData["InstructorId"] = new SelectList(_context.InstructorUsers, "Id", "FirstName");
+            var instructors = _context.Users.OfType<InstructorUser>()
+                    .Where(i => !i.IsDeleted && i.IsApproved)
+                    .Select(i => new
+                    {
+                        i.Id,
+                        FullName = $"{i.FirstName} {i.LastName}"
+                    }).ToListAsync();
+        ViewData["InstructorId"] = new SelectList((System.Collections.IEnumerable)instructors, "Id", "FullName");
             return Page();
         }
 

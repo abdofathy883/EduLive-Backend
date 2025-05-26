@@ -27,5 +27,6 @@ namespace Core.DTOs
         [JsonIgnore]
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiration { get; set; }
+        public bool? IsApproved { get; set; }
     }
 }

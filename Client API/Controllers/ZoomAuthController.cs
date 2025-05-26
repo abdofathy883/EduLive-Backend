@@ -21,7 +21,7 @@ namespace Client_API.Controllers
             return Ok(new { url });
         }
         [HttpGet("callback")]
-        public async Task<IActionResult> HandleCallback([FromQuery] string code, [FromQuery] Guid state)
+        public async Task<IActionResult> HandleCallback([FromQuery] string code, [FromQuery] string state)
         {
             if (string.IsNullOrEmpty(code))
                 return BadRequest("Missing Zoom authorization code");
@@ -30,13 +30,13 @@ namespace Client_API.Controllers
             return Ok(result);
         }
         [HttpGet("status/{userId}")]
-        public async Task<IActionResult> GetConnectionStatus(Guid userId)
+        public async Task<IActionResult> GetConnectionStatus(string userId)
         {
             var connection = await authService.GetUserConnectionAsync(userId);
             return Ok(connection);
         }
         [HttpPost("refresh/{userId}")]
-        public async Task<IActionResult> RefreshToken(Guid userId)
+        public async Task<IActionResult> RefreshToken(string userId)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace Client_API.Controllers
             }
         }
         [HttpPost("revoke/{userId}")]
-        public async Task<IActionResult> RevokeAccess(Guid userId)
+        public async Task<IActionResult> RevokeAccess(string userId)
         {
             var result = await authService.RevokeAccessAsync(userId);
             return Ok(new { revoked = result });

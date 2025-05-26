@@ -9,7 +9,7 @@ namespace Core.DTOs
     public class ZoomUserConnectionDTO
     {
         public Guid Id { get; set; }
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public string ZoomUserId { get; set; }
         public string ZoomEmail { get; set; }
         public bool IsConnected { get; set; }

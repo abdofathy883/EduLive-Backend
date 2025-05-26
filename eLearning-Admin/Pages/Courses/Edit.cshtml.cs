@@ -37,7 +37,14 @@ namespace eLearning_Admin.Pages.Courses
             }
             Course = course;
            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Description");
-           ViewData["InstructorId"] = new SelectList(_context.InstructorUsers, "Id", "Id");
+            var instructors = _context.Users.OfType<InstructorUser>()
+                    .Where(i => !i.IsDeleted && i.IsApproved)
+                    .Select(i => new
+                    {
+                        i.Id,
+                        FullName = $"{i.FirstName} {i.LastName}"
+                    }).ToListAsync();
+            ViewData["InstructorId"] = new SelectList((System.Collections.IEnumerable)instructors, "Id", "Id");
             return Page();
         }
 

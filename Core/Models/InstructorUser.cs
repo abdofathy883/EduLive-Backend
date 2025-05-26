@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Core.Models
 {
     public class InstructorUser : BaseUser
     {
+        [Required]
         public int InstructorId { get; set; }
         public List<Lesson>? Lessons {  get; set; }
         public List<Course>? Courses {  get; set; }

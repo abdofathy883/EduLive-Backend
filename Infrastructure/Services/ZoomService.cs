@@ -1,4 +1,5 @@
 ﻿using Core.DTOs;
+using Core.Enums;
 using Core.Interfaces;
 using Core.Models;
 using Infrastructure.Responses;
@@ -18,9 +19,9 @@ namespace Infrastructure.Services
     {
         private readonly HttpClient httpClient;
         private readonly IZoomAuthService zoomAuthService;
-        private readonly IGenericRepo<ZoomMeeting> repo;
+        private readonly IGenericRepo<Lesson> repo;
 
-        public ZoomService(HttpClient _httpClient, IZoomAuthService zoomAuthService, IGenericRepo<ZoomMeeting> genericRepo)
+        public ZoomService(HttpClient _httpClient, IZoomAuthService zoomAuthService, IGenericRepo<Lesson> genericRepo)
         {
             httpClient = _httpClient;
             this.zoomAuthService = zoomAuthService;
@@ -75,44 +76,68 @@ namespace Infrastructure.Services
             var responseContent = await response.Content.ReadAsStringAsync();
             var zoomMeeting = JsonSerializer.Deserialize<ZoomMeetingResponse>(responseContent);
 
-            // Save to database
-            var meeting = new ZoomMeeting
+            var meeting = new Lesson
             {
-                Id = Guid.NewGuid(),
-                ZoomMeetingId = zoomMeeting.Id,
-                Topic = zoomMeetingDTO.Topic,
-                StartTime = zoomMeetingDTO.StartTime,
+                Title = zoomMeetingDTO.Topic,
+                Description = zoomMeetingDTO.Description,
+                Date_Time = zoomMeetingDTO.StartTime,
                 Duration = zoomMeetingDTO.Duration,
-                JoinUrl = zoomMeeting.JoinUrl,
-                StartUrl = zoomMeeting.start_url,
-                Password = zoomMeeting.password,
+                LessonPlatform = Core.Enums.LessonPlatform.Zoom,
                 CourseId = zoomMeetingDTO.CourseId,
-                InstructorId = userId,
-                CreatedAt = DateTime.UtcNow
+                InstructorId = zoomMeetingDTO.InstructorId,
+                StudentId = zoomMeetingDTO.StudentId,
+                ZoomMeetingId = zoomMeeting.Id,
+                ZoomJoinURL = zoomMeeting.JoinUrl,
+                ZoomStartUrl = zoomMeeting.start_url,
+                ZoomPassword = zoomMeeting.password,
             };
+            // Save to database
+            
 
             await repo.AddAsync(meeting);
             await repo.SaveAllAsync();
 
             var resultDto = new ZoomMeetingDTO
             {
-                Id = meeting.Id,
+                Id = meeting.LessonId,
                 ZoomMeetingId = meeting.ZoomMeetingId,
-                Topic = meeting.Topic,
-                StartTime = meeting.StartTime,
+                Topic = meeting.Title,
+                StartTime = meeting.Date_Time,
                 Duration = meeting.Duration,
-                JoinUrl = meeting.JoinUrl,
-                StartUrl = meeting.StartUrl,
-                Password = meeting.Password,
+                JoinUrl = meeting.ZoomJoinURL,
+                StartUrl = meeting.ZoomStartUrl,
+                Password = meeting.ZoomPassword,
                 CourseId = meeting.CourseId,
                 InstructorId = meeting.InstructorId,
+                StudentId = meeting.StudentId
+
             };
             return resultDto;
         }
 
-        public Task<ZoomMeetingDTO> GetMeetingAsync(string meetingId)
+        public async Task<ZoomMeetingDTO> GetMeetingAsync(string meetingId)
         {
-            throw new NotImplementedException();
+            var lessons = await repo.GetAllAsync(); // Await the Task to get the actual list
+            var lesson = lessons
+                .Where(l => l.ZoomMeetingId == meetingId && l.LessonPlatform == LessonPlatform.Zoom)
+                .FirstOrDefault();
+
+            if (lesson == null)
+                throw new ArgumentException("Zoom meeting not found");
+
+            return new ZoomMeetingDTO
+            {
+                Id = lesson.LessonId,
+                ZoomMeetingId = lesson.ZoomMeetingId,
+                Topic = lesson.Title,
+                StartTime = lesson.Date_Time,
+                Duration = lesson.Duration,
+                JoinUrl = lesson.ZoomJoinURL,
+                StartUrl = lesson.ZoomStartUrl,
+                Password = lesson.ZoomPassword,
+                CourseId = lesson.CourseId,
+                InstructorId = lesson.InstructorId
+            };
         }
 
         public Task<ZoomMeetingDTO> UpdateMeetingAsync(UpdateZoomMeetingDTO zoomMeetingDTO)

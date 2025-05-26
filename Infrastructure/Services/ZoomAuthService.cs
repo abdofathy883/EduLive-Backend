@@ -43,7 +43,7 @@ namespace Infrastructure.Services
             return authUrl;
         }
 
-        public async Task<ZoomUserConnectionDTO> GetUserConnectionAsync(Guid userId)
+        public async Task<ZoomUserConnectionDTO> GetUserConnectionAsync(string userId)
         {
             var connection = await dbContext.ZoomUserConnections
                 .FirstOrDefaultAsync(c => c.UserId == userId);
@@ -76,7 +76,7 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<ZoomUserConnectionDTO> HandleOAuthCallback(string code, Guid userId)
+        public async Task<ZoomUserConnectionDTO> HandleOAuthCallback(string code, string userId)
         {
             var redirectUrl = options.Value.RedirectUrl;
             var clientId = options.Value.ClientId;
@@ -156,7 +156,7 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<string> RefreshAccessTokenAsync(Guid userId)
+        public async Task<string> RefreshAccessTokenAsync(string userId)
         {
             var connection = await dbContext.ZoomUserConnections
                 .FirstOrDefaultAsync(c => c.UserId == userId);
@@ -198,7 +198,7 @@ namespace Infrastructure.Services
             return tokenData.access_token;
         }
 
-        public async Task<bool> RevokeAccessAsync(Guid userId)
+        public async Task<bool> RevokeAccessAsync(string userId)
         {
             var connection = await dbContext.ZoomUserConnections
                 .FirstOrDefaultAsync(c => c.UserId == userId);

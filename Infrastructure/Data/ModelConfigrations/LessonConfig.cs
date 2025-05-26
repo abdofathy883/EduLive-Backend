@@ -35,8 +35,17 @@ namespace Infrastructure.Data.ModelConfigrations
             builder.Property(p => p.GoogleMeetURL)
                 .HasMaxLength(500);
 
-            builder.Property(p => p.ZoomURL)
+            builder.Property(p => p.ZoomJoinURL)
                 .HasMaxLength(500);
+
+            builder.Property(p => p.ZoomStartUrl)
+                .HasMaxLength(500);
+
+            builder.Property(p => p.ZoomPassword)
+                .HasMaxLength(100);
+
+            builder.Property(p => p.ZoomPassword)
+                .HasMaxLength(100);
 
             // Relationships
             builder.HasOne(p => p.Course)

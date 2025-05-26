@@ -10,6 +10,7 @@ namespace Core.DTOs
     {
         public string ZoomMeetingId { get; set; }
         public string Topic { get; set; }
+        public string Description { get; set; }
         public DateTime StartTime { get; set; }
         public int Duration { get; set; }
     }

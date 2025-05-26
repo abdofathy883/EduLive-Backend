@@ -33,10 +33,11 @@ namespace Infrastructure.Services
             }
 
             // Convert the VideoPath (string) to an IFormFile before calling UploadVideo
-            var cv = await uploadsService.UploadPDF(registerDTO.CvPath, registerDTO.FirstName + " " + registerDTO.LastName);
-            var video = await uploadsService.UploadVideo(registerDTO.VideoPath, registerDTO.FirstName + " " + registerDTO.LastName);
+            var cv = await uploadsService.UploadPDF(registerDTO.CvPath, registerDTO.FirstName + registerDTO.LastName);
+            var video = await uploadsService.UploadVideo(registerDTO.VideoPath, registerDTO.FirstName + registerDTO.LastName);
             var user = new InstructorUser
             {
+                InstructorId = Convert.ToInt32(Guid.NewGuid()),
                 FirstName = registerDTO.FirstName,
                 LastName = registerDTO.LastName,
                 Email = registerDTO.Email,
@@ -76,6 +77,13 @@ namespace Infrastructure.Services
                 return authDto;
             }
 
+            if (user.IsDeleted)
+            {
+                authDto.IsAuthenticated = false;
+                authDto.Message = "هذا الحساب غير متاح";
+                return authDto;
+            }
+
             authDto.IsAuthenticated = true;
             authDto.Email = user.Email;
             authDto.UserName = user.UserName;
@@ -107,6 +115,7 @@ namespace Infrastructure.Services
                 authDto.CV = instructor.CVPath;
                 authDto.IntroVideo = instructor.IntroVideoPath;
                 authDto.Bio = instructor.Bio;
+                authDto.IsApproved = instructor.IsApproved;
             }
             authDto.Message = "تم تسجيل الدخول بنجاح";
             return authDto;
@@ -127,6 +136,7 @@ namespace Infrastructure.Services
             var userName = registerDTO.Email.Split("@")[0];
             var user = new StudentUser
             {
+                StudentId = Convert.ToInt32(Guid.NewGuid()),
                 FirstName = registerDTO.FirstName,
                 LastName = registerDTO.LastName,
                 Email = registerDTO.Email,
@@ -295,6 +305,12 @@ namespace Infrastructure.Services
             user.LastName = updatedUser.LastName;
             user.PhoneNumber = updatedUser.PhoneNumber;
             user.Email = updatedUser.Email;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            //if (user is InstructorUser)
+            //{
+            //    user.cv
+            //}
 
             var result = await userManager.UpdateAsync(user);
 
@@ -311,7 +327,7 @@ namespace Infrastructure.Services
             var user = await userManager.FindByIdAsync(userId);
             if (user is null || user.IsDeleted)
             {
-                user = null;
+                return null;
             }
             var userDTO = new UserDTO
             {
@@ -332,6 +348,7 @@ namespace Infrastructure.Services
                 return false;
             }
             user.IsDeleted = true;
+            user.UpdatedAt = DateTime.UtcNow;
             var result = await userManager.UpdateAsync(user);
             return result.Succeeded;
         }

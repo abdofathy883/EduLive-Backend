@@ -24,7 +24,6 @@ namespace Infrastructure.Services
         private readonly ILogger<GoogleMeetAuthService> logger;
         private readonly IOptions<GoogleSettings> meetSettings;
 
-        //userId is the key in the GoogleMeetAccount table
         public GoogleMeetAuthService(IGenericRepo<GoogleMeetAccount> genericRepo, IHttpClientFactory httpClientFactory, ILogger<GoogleMeetAuthService> _logger, IOptions<GoogleSettings> options)
         {
             repo = genericRepo;
@@ -58,12 +57,7 @@ namespace Infrastructure.Services
             if (account.TokenExpiry <= DateTime.UtcNow.AddMinutes(5))
             {
                 // Refresh token
-                var refreshedToken = await RefreshAccessTokenAsync(account.RefreshToken);
-
-                account.AccessToken = refreshedToken.AccessToken;
-                account.TokenExpiry = DateTime.UtcNow.AddSeconds(refreshedToken.ExpiresIn);
-                //await _context.SaveChangesAsync();
-                await repo.SaveAllAsync();
+                var refreshedToken = await RefreshAccessTokenAsync(userId);
             }
 
             return account.AccessToken;
@@ -77,19 +71,28 @@ namespace Infrastructure.Services
             {
                 return new GoogleMeetAccountDTO
                 {
+                    UserId = userId,
                     IsConnected = false
                 };
+            }
+
+            if (account.TokenExpiry <= DateTime.UtcNow.AddMinutes(5))
+            {
+                await RefreshAccessTokenAsync(userId);
+                account = await repo.GetByIdAsync(userId);
             }
 
             return new GoogleMeetAccountDTO
             {
                 Id = account.Id,
+                UserId = account.UserId,
                 Email = account.Email,
+                GoogleUserId = account.GoogleUserId,
                 IsConnected = true
             };
         }
 
-        public Task<string> GetAuthorizationUrlAsync()
+        public string GetAuthorizationUrlAsync()
         {
             var clientId = meetSettings.Value.ClientId;
             var redirectUri = meetSettings.Value.RedirectUrl;
@@ -103,7 +106,7 @@ namespace Infrastructure.Services
                           $"access_type=offline&" +
                           $"prompt=consent";
 
-            return Task.FromResult(authUrl);
+            return authUrl;
         }
 
         public async Task<GoogleMeetAccountDTO> HandleAuthCallbackAsync(string code, string userId)
@@ -121,6 +124,7 @@ namespace Infrastructure.Services
                 existingAccount.AccessToken = tokenResponse.AccessToken;
                 existingAccount.RefreshToken = tokenResponse.RefreshToken;
                 existingAccount.TokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+                existingAccount.UpdatedAt = DateTime.UtcNow;
             }
             else
             {
@@ -132,7 +136,8 @@ namespace Infrastructure.Services
                     Email = userInfo.Email,
                     AccessToken = tokenResponse.AccessToken,
                     RefreshToken = tokenResponse.RefreshToken,
-                    TokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn)
+                    TokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn),
+                    CreatedAt = DateTime.UtcNow,
                 };
                 await repo.AddAsync(existingAccount);
             }
@@ -142,7 +147,9 @@ namespace Infrastructure.Services
             return new GoogleMeetAccountDTO
             {
                 Id = existingAccount.Id,
+                UserId = existingAccount.UserId,
                 Email = existingAccount.Email,
+                GoogleUserId = existingAccount.GoogleUserId,
                 IsConnected = true
             };
         }
@@ -155,6 +162,46 @@ namespace Infrastructure.Services
                 return false;
             }
             return true;
+        }
+
+        public async Task<string> RefreshAccessTokenAsync(string userId)
+        {
+            var account = await repo.GetByIdAsync(userId);
+            if (account == null)
+            {
+                throw new InvalidOperationException($"No Google Account was found for user: {userId}");
+            }
+
+            var clientId = meetSettings.Value.ClientId;
+            var clientSecret = meetSettings.Value.ClientSecret;
+            var http = httpClient.CreateClient();
+
+            var formContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("refresh_token", account.RefreshToken),
+                new KeyValuePair<string, string>("client_id", clientId),
+                new KeyValuePair<string, string>("client_secret", clientSecret),
+                new KeyValuePair<string, string>("grant_type", "refresh_token")
+            });
+
+            var response = await http.PostAsync("https://oauth2.googleapis.com/token", formContent);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var token = JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content);
+
+            account.AccessToken = token.AccessToken;
+            if (!string.IsNullOrEmpty(token.RefreshToken))
+            {
+                account.RefreshToken = token.RefreshToken;
+            }
+            account.TokenExpiry = DateTime.UtcNow.AddSeconds(token.ExpiresIn);
+            account.UpdatedAt = DateTime.UtcNow;
+
+            //await repo.Update(account);
+            await repo.SaveAllAsync();
+
+            return token.RefreshToken;
         }
 
         private async Task<GoogleMeetAuthResponse> ExchangeCodeForTokensAsync(string code)
@@ -172,31 +219,7 @@ namespace Infrastructure.Services
             new KeyValuePair<string, string>("client_secret", clientSecret),
             new KeyValuePair<string, string>("redirect_uri", redirectUri),
             new KeyValuePair<string, string>("grant_type", "authorization_code")
-        });
-
-            var response = await http.PostAsync("https://oauth2.googleapis.com/token", formContent);
-            response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            var token = JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content);
-
-            return token;
-        }
-
-        private async Task<GoogleMeetAuthResponse> RefreshAccessTokenAsync(string refreshToken)
-        {
-            var clientId = meetSettings.Value.ClientId;
-            var clientSecret = meetSettings.Value.ClientSecret;
-
-            var http = httpClient.CreateClient();
-
-            var formContent = new FormUrlEncodedContent(new[]
-            {
-            new KeyValuePair<string, string>("refresh_token", refreshToken),
-            new KeyValuePair<string, string>("client_id", clientId),
-            new KeyValuePair<string, string>("client_secret", clientSecret),
-            new KeyValuePair<string, string>("grant_type", "refresh_token")
-        });
+            });
 
             var response = await http.PostAsync("https://oauth2.googleapis.com/token", formContent);
             response.EnsureSuccessStatusCode();
@@ -220,5 +243,7 @@ namespace Infrastructure.Services
 
             return userInfo;
         }
+
+        
     }
 }
