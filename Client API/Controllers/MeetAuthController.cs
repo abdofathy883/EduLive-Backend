@@ -17,8 +17,7 @@ namespace Client_API.Controllers
         [HttpGet("Authorize")]
         public async Task<IActionResult> GetAuthorizationUrl()
         {
-            var url = await meetAuthService.GetAuthorizationUrlAsync();
-            //var url = await meetAuthService.GetAuthorizationUrlAsync();
+            var url = meetAuthService.GetAuthorizationUrlAsync();
             return Ok(new { url });
         }
         [HttpGet("Callback")]

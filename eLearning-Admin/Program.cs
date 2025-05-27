@@ -4,6 +4,7 @@ using Infrastructure.Configrations;
 using Infrastructure.Data;
 using Infrastructure.Repos;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,12 @@ namespace eLearning_Admin
                 .AddEntityFrameworkStores<E_LearningDbContextAlias>()
                 .AddDefaultTokenProviders();
 
-            builder.Services.AddRazorPages();
+            builder.Services.AddRazorPages(options =>
+            {
+                //options.Conventions.AuthorizeFolder("/", "RequireAuth");
+                options.Conventions.AllowAnonymousToPage("/Account/Login");
+                options.Conventions.AllowAnonymousToPage("/Account/AccessDenied");
+            });
 
 
             //builder.Services.AddScoped<>
@@ -43,7 +49,18 @@ namespace eLearning_Admin
             builder.Services.AddSingleton<JwtSettings>(jwtOptions);
             builder.Services.AddScoped<IJWT, JWTService>();
 
+            //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            //    .AddCookie(options =>
+            //    {
+            //        options.LoginPath = "/Account/Login";
+            //        options.AccessDeniedPath = "/Account/AccessDenied";
+            //        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+            //    });
 
+            //builder.Services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("RequireAuth", policy => policy.RequireAuthenticatedUser());
+            //});
 
 
             builder.Services.AddAuthentication(options =>

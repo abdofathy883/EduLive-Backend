@@ -8,5 +8,6 @@ namespace Core.Models
 {
     public class AdminUser : BaseUser
     {
+        public string AdminId { get; set; }
     }
 }

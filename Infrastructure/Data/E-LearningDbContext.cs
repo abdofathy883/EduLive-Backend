@@ -72,6 +72,10 @@ namespace Infrastructure.Data
                 .Property(p => p.InstructorId)
                 .IsRequired();
 
+            builder.Entity<AdminUser>()
+                .Property(p => p.AdminId)
+                .IsRequired();
+
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new BaseUserConfig());
             builder.ApplyConfiguration(new StudentConfig());

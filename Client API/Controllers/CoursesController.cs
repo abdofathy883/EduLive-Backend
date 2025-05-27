@@ -24,7 +24,7 @@ namespace Client_API.Controllers
             var newCourse = await courseService.AddCourseAsync(course);
             if (newCourse is null)
             {
-                return NotFound("not foundddd");
+                return NotFound();
             }
             return base.Ok((object)newCourse);
         }
