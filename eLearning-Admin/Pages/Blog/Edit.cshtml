@@ -9,56 +9,42 @@
 
 <h4>Blog</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Blog.Id" />
-            <div class="form-group">
-                
-                <label asp-for="Blog.Title" class="control-label"></label>
-                <input asp-for="Blog.Title" class="form-control" />
-                <span asp-validation-for="Blog.Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                
-                <label asp-for="Blog.Content" class="control-label"></label>
-                <input asp-for="Blog.Content" class="form-control" />
-                <span asp-validation-for="Blog.Content" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                
-                <label asp-for="Blog.PostImage" class="control-label"></label>
-                <input asp-for="Blog.PostImage" class="form-control" />
-                <span asp-validation-for="Blog.PostImage" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                
-                <label asp-for="Blog.CreatedAt" class="control-label"></label>
-                <input asp-for="Blog.CreatedAt" class="form-control" />
-                <span asp-validation-for="Blog.CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                
-                <label asp-for="Blog.UpdatedAt" class="control-label"></label>
-                <input asp-for="Blog.UpdatedAt" class="form-control" />
-                <span asp-validation-for="Blog.UpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Blog.IsDeleted" /> @Html.DisplayNameFor(model => model.Blog.IsDeleted)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<div class="container">
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Blog.Id" />
+        <div class="row mb-3">
+            <label class="form-label">العنوان</label>
+            <input asp-for="Blog.Title" class="form-control" />
+            <span asp-validation-for="Blog.Title" class="text-danger"></span>
+        </div>
+
+        <div class="row mb-3">
+            <label class="control-label">المحتوي</label>
+            <textarea asp-for="Blog.Content" class="form-control"></textarea>
+            @* <input asp-for="Blog.Content" class="form-control" /> *@
+            <span asp-validation-for="Blog.Content" class="text-danger"></span>
+        </div>
+
+        <div class="row mb-3">
+            <label asp-for="Blog.PostImage" class="control-label"></label>
+            <input asp-for="Blog.PostImage" class="form-control" />
+            <span asp-validation-for="Blog.PostImage" class="text-danger"></span>
+        </div>
+
+        <div class="form-group form-check form-switch form-check-reverse mb-3">
+            <input class="form-check-input" type="checkbox" id="switchCheckReverse" asp-for="Blog.IsDeleted" />
+            <label class="form-check-label" for="switchCheckReverse">اخفاء</label>
+        </div>
+
+        <div class="form-group mb-3">
+            <input type="submit" value="حفظ" class="btn btn-primary" />
+        </div>
+    </form>
 </div>
 
 <div>
-    <a asp-page="./Index">Back to List</a>
+    <a asp-page="./Index">العودة الى قائمة المقالات</a>
 </div>
 
 @section Scripts {

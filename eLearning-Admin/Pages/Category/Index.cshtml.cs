@@ -26,18 +26,17 @@ namespace eLearning_Admin.Pages.Category
             Category = await _context.Categories.ToListAsync();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public async Task<IActionResult> OnPostAsync(int? deleteEntryId)
         {
-            if (id == null)
+            if (deleteEntryId == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories.FindAsync(deleteEntryId);
             if (category != null)
             {
-                Category = (IList<Core.Models.Category>)category;
-                _context.Categories.Remove((Core.Models.Category)Category);
+                _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
             }
 

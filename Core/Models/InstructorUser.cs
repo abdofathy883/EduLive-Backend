@@ -12,7 +12,7 @@ namespace Core.Models
     public class InstructorUser : BaseUser
     {
         [Required]
-        public int InstructorId { get; set; }
+        public string InstructorId { get; set; }
         public List<Lesson>? Lessons {  get; set; }
         public List<Course>? Courses {  get; set; }
         public List<Certificate>? IssuedCertificates { get; set; }

@@ -37,7 +37,7 @@ namespace Infrastructure.Services
             var video = await uploadsService.UploadVideo(registerDTO.VideoPath, registerDTO.FirstName + registerDTO.LastName);
             var user = new InstructorUser
             {
-                InstructorId = Convert.ToInt32(Guid.NewGuid()),
+                InstructorId = Guid.NewGuid().ToString(),
                 FirstName = registerDTO.FirstName,
                 LastName = registerDTO.LastName,
                 Email = registerDTO.Email,

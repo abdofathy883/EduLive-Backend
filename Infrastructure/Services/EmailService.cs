@@ -2,6 +2,7 @@
 using Core.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using System;
@@ -12,13 +13,19 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
-    public class EmailService: IEmailService
+    public class EmailService: IEmailService, IEmailSender
     {
         private readonly IOptions<EmailSettings> emailSettings;
         public EmailService(IOptions<EmailSettings> options)
         {
             emailSettings = options;
         }
+
+        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task SendEmailWithTemplateAsync(string to, string subject, string templateName, Dictionary<string, string> replacements)
         {
             var fromEmail = emailSettings.Value.AppEmail;

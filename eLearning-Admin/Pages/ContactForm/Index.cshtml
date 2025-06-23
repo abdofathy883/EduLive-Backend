@@ -5,37 +5,73 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>استمارة التواصل</h1>
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>الاسم</th>
+                <th>الايميل</th>
+                <th>الهاتف</th>
+                <th>اجراء</th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model.ContactForm) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Phone)
+                </td>
+                <td>
+                    <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-danger">Details</a> |
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id">
+                        حذف
+                    </button>
+                </td>
+            </tr>
+    }
+        </tbody>
+    </table>
+</div>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>الاسم</th>
-            <th>الايميل</th>
-            <th>الهاتف</th>
-            <th>اجراء</th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.ContactForm) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Phone)
-            </td>
-            <td>
-                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-danger">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">تاكيد حذف الرد</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                هل انت متاكد من حذف هذا الرد؟
+            </div>
+            <div class="modal-footer">
+                <form method="post">
+                    <input type="hidden" id="deleteEntryId" name="deleteEntryId" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
+                    <button type="submit" class="btn btn-danger">تأكيد الحذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const entryId = button.getAttribute('data-id');
+                const input = document.getElementById('deleteEntryId');
+                input.value = entryId;
+            });
+        });
+    </script>
 }
-    </tbody>
-</table>

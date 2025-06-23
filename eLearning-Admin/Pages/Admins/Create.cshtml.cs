@@ -24,16 +24,18 @@ namespace eLearning_Admin.Pages.Admins
         public BaseUser Admin { get; set; } = default!;
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return Page();
+            //}
             // Create a new AdminUser object
-            var admin = new BaseUser
+            var admin = new AdminUser
             {
+                Id = Guid.NewGuid().ToString(),
                 FirstName = Admin.FirstName,
                 LastName = Admin.LastName,
                 Email = Admin.Email,
+                UserName = Admin.Email.Split("@")[0],
                 PhoneNumber = Admin.PhoneNumber,
                 DateOfBirth = Admin.DateOfBirth,
                 PasswordHash = userManager.PasswordHasher.HashPassword(Admin, Admin.PasswordHash),

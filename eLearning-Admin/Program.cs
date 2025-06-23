@@ -7,6 +7,7 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -31,7 +32,7 @@ namespace eLearning_Admin
 
             builder.Services.AddRazorPages(options =>
             {
-                //options.Conventions.AuthorizeFolder("/", "RequireAuth");
+                options.Conventions.AuthorizeFolder("/", "RequireAuth");
                 options.Conventions.AllowAnonymousToPage("/Account/Login");
                 options.Conventions.AllowAnonymousToPage("/Account/AccessDenied");
             });
@@ -43,31 +44,35 @@ namespace eLearning_Admin
             builder.Services.AddScoped<IAuth, AuthService>();
 
             builder.Services.AddScoped<ImagesUploadsService>();
+
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IEmailSender, EmailService>();
             builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
 
             JwtSettings jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtSettings>() ?? throw new Exception("Error in JWT Settings");
             builder.Services.AddSingleton<JwtSettings>(jwtOptions);
             builder.Services.AddScoped<IJWT, JWTService>();
 
-            //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            //    .AddCookie(options =>
-            //    {
-            //        options.LoginPath = "/Account/Login";
-            //        options.AccessDeniedPath = "/Account/AccessDenied";
-            //        options.ExpireTimeSpan = TimeSpan.FromHours(24);
-            //    });
-
-            //builder.Services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("RequireAuth", policy => policy.RequireAuthenticatedUser());
-            //});
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireAuth", policy => policy.RequireAuthenticatedUser());
+            });
 
 
             builder.Services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+                //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromHours(24);
+            })
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
                 options.SaveToken = true;
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
@@ -101,6 +106,7 @@ namespace eLearning_Admin
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();

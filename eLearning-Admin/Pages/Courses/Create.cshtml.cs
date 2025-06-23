@@ -24,17 +24,17 @@ namespace eLearning_Admin.Pages.Courses
             courseService = course;
         }
 
-        public IActionResult OnGet()
+        public async  Task<IActionResult> OnGet()
         {
         ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title");
-            var instructors = _context.Users.OfType<InstructorUser>()
+            var instructors = await _context.Users.OfType<InstructorUser>()
                     .Where(i => !i.IsDeleted && i.IsApproved)
                     .Select(i => new
                     {
                         i.Id,
                         FullName = $"{i.FirstName} {i.LastName}"
                     }).ToListAsync();
-        ViewData["InstructorId"] = new SelectList((System.Collections.IEnumerable)instructors, "Id", "FullName");
+        ViewData["InstructorId"] = new SelectList(instructors, "Id", "FullName");
             return Page();
         }
 

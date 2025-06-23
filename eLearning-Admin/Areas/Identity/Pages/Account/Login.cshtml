@@ -5,30 +5,32 @@
     ViewData["Title"] = "Log in";
 }
 
-<section class="container">
-    <h1>أهلا بك من جديد في ادارة تحفيظ القران</h1>
-    <form id="account" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-        <div class="mb-3">
-            <label asp-for="Input.Email" class="form-label">البريد الالكتروني</label>
-            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-            <span asp-validation-for="Input.Email" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="Input.Password" class="form-label">كلمة المرور</label>
-            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="ادخل كلمة المرور" />
-            <span asp-validation-for="Input.Password" class="text-danger"></span>
-        </div>
-        @* <div class="checkbox mb-3"> *@
-        @*     <label asp-for="Input.RememberMe" class="form-label"> *@
-        @*         <input class="form-check-input" asp-for="Input.RememberMe" /> *@
-        @*         @Html.DisplayNameFor(m => m.Input.RememberMe) *@
-        @*     </label> *@
-        @* </div> *@
-        <div>
-            <button id="login-submit" type="submit" class="w-100 btn btn-md btn-primary">تسجيل الدخول</button>
-        </div>
-        <div>
+<section class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div style="width: 600px;">
+        <h1>أهلا بك من جديد في ادارة تحفيظ القران</h1>
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">البريد الالكتروني</label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label">كلمة المرور</label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="ادخل كلمة المرور" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            @* <div class="checkbox mb-3"> *@
+            @*     <label asp-for="Input.RememberMe" class="form-label"> *@
+            @*         <input class="form-check-input" asp-for="Input.RememberMe" /> *@
+            @*         @Html.DisplayNameFor(m => m.Input.RememberMe) *@
+            @*     </label> *@
+            @* </div> *@
+            <div>
+                <button id="login-submit" type="submit" class="w-100 btn btn-md btn-primary">تسجيل الدخول</button>
+            </div>
+        </form>
+        <div class="mt-2">
             <p>
                 <a id="forgot-password" asp-page="./ForgotPassword">هل نسيت كلمة المرور؟</a>
             </p>
@@ -36,7 +38,7 @@
                 <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
             </p>
         </div>
-    </form>
+    </div>
 </section>
 
 @section Scripts {

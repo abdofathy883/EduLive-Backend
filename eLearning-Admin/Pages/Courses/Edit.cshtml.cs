@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Core.Models;
-using Infrastructure.Data;
 
 namespace eLearning_Admin.Pages.Courses
 {
@@ -30,21 +25,23 @@ namespace eLearning_Admin.Pages.Courses
                 return NotFound();
             }
 
-            var course =  await _context.Courses.FirstOrDefaultAsync(m => m.ID == id);
+            var course =  await _context.Courses
+                .Include(c => c.Instructor)
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (course == null)
             {
                 return NotFound();
             }
             Course = course;
-           ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Description");
-            var instructors = _context.Users.OfType<InstructorUser>()
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title");
+            var instructors = await _context.Users.OfType<InstructorUser>()
                     .Where(i => !i.IsDeleted && i.IsApproved)
                     .Select(i => new
-                    {
-                        i.Id,
-                        FullName = $"{i.FirstName} {i.LastName}"
-                    }).ToListAsync();
-            ViewData["InstructorId"] = new SelectList((System.Collections.IEnumerable)instructors, "Id", "Id");
+                        {
+                            Id = i.Id,
+                            FullName = $"{i.FirstName} {i.LastName}"
+                        }).ToListAsync();
+            ViewData["InstructorId"] = new SelectList(instructors, "Id", "FullName", Course.InstructorId);
             return Page();
         }
 

@@ -29,5 +29,22 @@ namespace eLearning_Admin.Pages.Students
                 Students = new List<StudentUser>();
             }
         }
+
+        public async Task<IActionResult> OnPostAsync(int? deleteEntryId)
+        {
+            if (deleteEntryId == null)
+            {
+                return NotFound();
+            }
+
+            var student = await context.Users.FindAsync(deleteEntryId);
+            if (student != null)
+            {
+                context.Users.Remove(student);
+                await context.SaveChangesAsync();
+            }
+
+            return RedirectToPage("./Index");
+        }
     }
 }

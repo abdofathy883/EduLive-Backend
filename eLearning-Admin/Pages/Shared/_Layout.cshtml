@@ -11,8 +11,8 @@
 </head>
 <body>
     <div class="row vh-100">
-        @* @if(User.Identity.IsAuthenticated) *@
-        @* { *@
+        @if(User.Identity.IsAuthenticated)
+        {
         <div class="col-2 sidebar">
             <header>
                 <nav class="navbar navbar-expand-sm mb-3">
@@ -61,7 +61,7 @@
                 </nav>
             </header>
         </div>
-        @* }  *@
+        } 
         <div class="col-10">
             <div class="container py-4">
                 <main role="main" class="pb-3">

@@ -25,5 +25,22 @@ namespace eLearning_Admin.Pages.Blog
         {
             Blog = await _context.Blogs.ToListAsync();
         }
+
+        public async Task<IActionResult> OnPostAsync(int? deleteEntryId)
+        {
+            if (deleteEntryId == null)
+            {
+                return NotFound();
+            }
+
+            var blog = await _context.Blogs.FindAsync(deleteEntryId);
+            if (blog != null)
+            {
+                _context.Blogs.Remove(blog);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToPage("./Index");
+        }
     }
 }

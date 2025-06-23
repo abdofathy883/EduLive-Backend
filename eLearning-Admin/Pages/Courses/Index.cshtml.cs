@@ -27,5 +27,22 @@ namespace eLearning_Admin.Pages.Courses
                 .Include(c => c.Category)
                 .Include(c => c.Instructor).ToListAsync();
         }
+
+        public async Task<IActionResult> OnPostAsync(int? deleteEntryId)
+        {
+            if (deleteEntryId == null)
+            {
+                return NotFound();
+            }
+
+            var course = await _context.Courses.FindAsync(deleteEntryId);
+            if (course != null)
+            {
+                _context.Courses.Remove(course);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToPage("./Index");
+        }
     }
 }

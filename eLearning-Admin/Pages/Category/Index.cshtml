@@ -33,10 +33,6 @@
             </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-success">تعديل</a>
-                @* <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-danger">حذف</a> *@
-                @* <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"> *@
-                @*     حذف *@
-                @* </button> *@
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id">
                     حذف
                 </button>
@@ -68,13 +64,18 @@
     </div>
 </div>
 
-<script>
-    const deleteModal = document.getElementById('deleteModal');
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const entryId = button.getAttribute('data-id');
-        const input = document.getElementById('deleteEntryId');
-        input.value = entryId;
-    });
-</script>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const entryId = button.getAttribute('data-id');
+                const input = document.getElementById('deleteEntryId');
+                input.value = entryId;
+            });
+        });
+    </script>
+}
 

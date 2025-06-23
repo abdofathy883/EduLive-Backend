@@ -27,5 +27,22 @@ namespace eLearning_Admin.Pages.Instructors
                 Instructors = new List<Core.Models.InstructorUser>();
             }
         }
+
+        public async Task<IActionResult> OnPostAsync(int? deleteEntryId)
+        {
+            if (deleteEntryId == null)
+            {
+                return NotFound();
+            }
+
+            var instructor = await _context.Users.FindAsync(deleteEntryId);
+            if (instructor != null)
+            {
+                _context.Users.Remove(instructor);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToPage("./Index");
+        }
     }
 }
