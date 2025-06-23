@@ -8,6 +8,8 @@ using MimeKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,9 +23,28 @@ namespace Infrastructure.Services
             emailSettings = options;
         }
 
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            throw new NotImplementedException();
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(emailSettings.Value.AppEmail
+                , emailSettings.Value.AppEmail),
+                Subject = subject,
+                Body = htmlMessage,
+                IsBodyHtml = true,
+            };
+            mailMessage.To.Add(email);
+
+            // Configure the SmtpClient
+            using var smtpClient = new System.Net.Mail.SmtpClient(emailSettings.Value.SmtpServer, emailSettings.Value.SmtpPort)
+            {
+                // Set credentials and enable SSL
+                Credentials = new NetworkCredential(emailSettings.Value.AppEmail, emailSettings.Value.AppPassword),
+                EnableSsl = true,
+            };
+
+            // Send the email
+            await smtpClient.SendMailAsync(mailMessage);
         }
 
         public async Task SendEmailWithTemplateAsync(string to, string subject, string templateName, Dictionary<string, string> replacements)
@@ -50,7 +71,7 @@ namespace Infrastructure.Services
                 Text = htmlbody
             };
 
-            using (var client = new SmtpClient())
+            using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
                 await client.ConnectAsync(SMTPServer, SMTPPort, SecureSocketOptions.StartTls);
                 await client.AuthenticateAsync(fromEmail, emailPassword);

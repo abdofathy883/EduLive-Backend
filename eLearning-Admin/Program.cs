@@ -1,5 +1,6 @@
 using Core.Interfaces;
 using Core.Models;
+using Core.Settings;
 using Infrastructure.Configrations;
 using Infrastructure.Data;
 using Infrastructure.Repos;
@@ -30,6 +31,9 @@ namespace eLearning_Admin
                 .AddEntityFrameworkStores<E_LearningDbContextAlias>()
                 .AddDefaultTokenProviders();
 
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("MailSettings"));
+
+
             builder.Services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizeFolder("/", "RequireAuth");
@@ -37,16 +41,14 @@ namespace eLearning_Admin
                 options.Conventions.AllowAnonymousToPage("/Account/AccessDenied");
             });
 
-
-            //builder.Services.AddScoped<>
             builder.Services.AddScoped<ICourse, CourseService>();
             builder.Services.AddScoped<IBlogService, BlogService>();
             builder.Services.AddScoped<IAuth, AuthService>();
 
             builder.Services.AddScoped<ImagesUploadsService>();
 
-            builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddScoped<IEmailSender, EmailService>();
+            //builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddTransient<IEmailSender, EmailService>();
             builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
 
             JwtSettings jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtSettings>() ?? throw new Exception("Error in JWT Settings");
@@ -71,22 +73,24 @@ namespace eLearning_Admin
                 options.LoginPath = "/Identity/Account/Login";
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.ExpireTimeSpan = TimeSpan.FromHours(24);
-            })
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.SaveToken = true;
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidAudience = jwtOptions.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
-                    ClockSkew = TimeSpan.Zero
-                };
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
+            //.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            //{
+            //    options.SaveToken = true;
+            //    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            //    {
+            //        ValidateIssuer = true,
+            //        ValidateAudience = true,
+            //        ValidateLifetime = true,
+            //        ValidateIssuerSigningKey = true,
+            //        ValidIssuer = jwtOptions.Issuer,
+            //        ValidAudience = jwtOptions.Audience,
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+            //        ClockSkew = TimeSpan.Zero
+            //    };
+            //});
 
 
             var app = builder.Build();

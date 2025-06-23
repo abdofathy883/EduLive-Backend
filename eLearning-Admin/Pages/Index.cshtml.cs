@@ -14,9 +14,14 @@ namespace eLearning_Admin.Pages
             _logger = logger;
         }
 
-        public IActionResult OnGet()
+        public void OnGet()
         {
-            return RedirectToPage("/Account/Login");
+            //if (!User.Identity.IsAuthenticated)
+            //{
+            //    return RedirectToPage("/Account/Login");
+            //}
+
+            //return Page();
         }
     }
 }
