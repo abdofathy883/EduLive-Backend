@@ -3,57 +3,55 @@
 @{
     ViewData["Title"] = "Index";
 }
-
-<h1>الطلاب</h1>
-<hr />
-
-<p>
+<div class="container">
+    <h1>الطلاب</h1>
+    <hr />
     <a asp-page="Create" class="btn btn-primary">اضافة طالب جديد</a>
-</p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>الاسم</th>
-            <th>البريد الالكتروني</th>
-            <th>رقم الهاتف</th>
-            <th>اجراء</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Students)
-        {
+    <table class="table">
+        <thead>
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)</td>
-                <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
-                <td>
-                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-success">تعديل</a>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id">
-                        حذف
-                    </button>
-                </td>
+                <th>الاسم</th>
+                <th>البريد الالكتروني</th>
+                <th>رقم الهاتف</th>
+                <th>اجراء</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Students)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                    <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
+                    <td>
+                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-success">تعديل</a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id">
+                            حذف
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">تاكيد حذف الطالب</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                هل انت متاكد من حذف هذا الطالب؟
-            </div>
-            <div class="modal-footer">
-                <form method="post">
-                    <input type="hidden" id="deleteEntryId" name="deleteEntryId" />
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
-                    <button type="submit" class="btn btn-danger">تأكيد الحذف</button>
-                </form>
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">تاكيد حذف الطالب</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    هل انت متاكد من حذف هذا الطالب؟
+                </div>
+                <div class="modal-footer">
+                    <form method="post">
+                        <input type="hidden" id="deleteEntryId" name="deleteEntryId" />
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
+                        <button type="submit" class="btn btn-danger">تأكيد الحذف</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

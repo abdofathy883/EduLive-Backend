@@ -4,104 +4,105 @@
 @{
     ViewData["Title"] = "Edit";
 }
+<div class="container">
+    <h1>@Model.Course.Title</h1>
+    <hr />
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Course.ID" />
+        <div class="row mb-3">
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-label">عنوان الدورة</label>
+                    <input asp-for="Course.Title" class="form-control" />
+                    <span asp-validation-for="Course.Title" class="text-danger"></span>
+                </div>
+            </div>
 
-<h1>@Model.Course.Title</h1>
-<hr />
-<form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Course.ID" />
-    <div class="row mb-3">
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">عنوان الدورة</label>
-                <input asp-for="Course.Title" class="form-control" />
-                <span asp-validation-for="Course.Title" class="text-danger"></span>
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-label">عدد الحصص</label>
+                    <input asp-for="Course.NuOfLessons" class="form-control" />
+                    <span asp-validation-for="Course.NuOfLessons" class="text-danger"></span>
+                </div>
             </div>
         </div>
 
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">عدد الحصص</label>
-                <input asp-for="Course.NuOfLessons" class="form-control" />
-                <span asp-validation-for="Course.NuOfLessons" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="form-group">    
+                <label class="form-label">الوصف</label>
+                <textarea asp-for="Course.Description" class="form-control"></textarea>
+                <span asp-validation-for="Course.Description" class="text-danger"></span>
             </div>
         </div>
+
+        <div class="row mb-3">
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-label">السعر الاصلي</label>
+                    <input asp-for="Course.OriginalPrice" class="form-control" />
+                    <span asp-validation-for="Course.OriginalPrice" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-label">السعر بعد التخفيض</label>
+                    <input asp-for="Course.SalePrice" class="form-control" />
+                    <span asp-validation-for="Course.SalePrice" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-label">الصورة</label>
+                    <input type="file" asp-for="Course.CourseImagePath" class="form-control" />
+                    <span asp-validation-for="Course.CourseImagePath" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-label">التصنيف</label>
+                    <select asp-for="Course.CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+                    <span asp-validation-for="Course.CategoryId" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-label">المعلم</label>
+                    <select asp-for="Course.InstructorId" class="form-control" asp-items="ViewBag.InstructorId"></select>
+                    <span asp-validation-for="Course.InstructorId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="form-group">
+                    <label class="form-label">الشهادة</label>
+                    <input asp-for="Course.CertificateTemplatePath" class="form-control" />
+                    <span asp-validation-for="Course.CertificateTemplatePath" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-check form-switch form-check-reverse mb-3">
+            <input class="form-check-input" type="checkbox" id="switchCheckReverse" asp-for="Course.IsDeleted" />
+            <label class="form-check-label" for="switchCheckReverse">اخفاء</label>
+        </div>
+
+        <div class="form-group mb-3">
+            <input type="submit" value="حفظ" class="btn btn-primary" />
+        </div>
+    </form>
+
+
+    <div>
+        <a asp-page="./Index">العودة الى قائمة الدورات</a>
     </div>
-
-    <div class="row mb-3">
-        <div class="form-group">    
-            <label class="form-label">الوصف</label>
-            <textarea asp-for="Course.Description" class="form-control"></textarea>
-            <span asp-validation-for="Course.Description" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">السعر الاصلي</label>
-                <input asp-for="Course.OriginalPrice" class="form-control" />
-                <span asp-validation-for="Course.OriginalPrice" class="text-danger"></span>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">السعر بعد التخفيض</label>
-                <input asp-for="Course.SalePrice" class="form-control" />
-                <span asp-validation-for="Course.SalePrice" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">الصورة</label>
-                <input type="file" asp-for="Course.CourseImagePath" class="form-control" />
-                <span asp-validation-for="Course.CourseImagePath" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">التصنيف</label>
-                <select asp-for="Course.CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
-                <span asp-validation-for="Course.CategoryId" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">المعلم</label>
-                <select asp-for="Course.InstructorId" class="form-control" asp-items="ViewBag.InstructorId"></select>
-                <span asp-validation-for="Course.InstructorId" class="text-danger"></span>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="form-group">
-                <label class="form-label">الشهادة</label>
-                <input asp-for="Course.CertificateTemplatePath" class="form-control" />
-                <span asp-validation-for="Course.CertificateTemplatePath" class="text-danger"></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="form-group form-check form-switch form-check-reverse mb-3">
-        <input class="form-check-input" type="checkbox" id="switchCheckReverse" asp-for="Course.IsDeleted" />
-        <label class="form-check-label" for="switchCheckReverse">اخفاء</label>
-    </div>
-
-    <div class="form-group mb-3">
-        <input type="submit" value="حفظ" class="btn btn-primary" />
-    </div>
-</form>
-
-
-<div>
-    <a asp-page="./Index">العودة الى قائمة الدورات</a>
 </div>
 
 @section Scripts {

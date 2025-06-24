@@ -3,70 +3,72 @@
 @{
     ViewData["Title"] = "Create Instructor";
 }
-<h1>اضافة معلم جديد</h1>
-<hr />
+<div class="container">
+    <h1>اضافة معلم جديد</h1>
+    <hr />
 
-<form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">الاسم الاول</label>
-            <input asp-for="Instructor.FirstName" class="form-control" />
-            <span asp-validation-for="Instructor.FirstName" class="text-danger"></span>
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">الاسم الاول</label>
+                <input asp-for="Instructor.FirstName" class="form-control" />
+                <span asp-validation-for="Instructor.FirstName" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الاسم الاخير</label>
+                <input asp-for="Instructor.LastName" class="form-control" />
+                <span asp-validation-for="Instructor.LastName" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">الاسم الاخير</label>
-            <input asp-for="Instructor.LastName" class="form-control" />
-            <span asp-validation-for="Instructor.LastName" class="text-danger"></span>
-        </div>
-    </div>
     
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">البريد الالكتروني</label>
-            <input asp-for="Instructor.Email" class="form-control" />
-            <span asp-validation-for="Instructor.Email" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">البريد الالكتروني</label>
+                <input asp-for="Instructor.Email" class="form-control" />
+                <span asp-validation-for="Instructor.Email" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الهاتف</label>
+                <input asp-for="Instructor.PhoneNumber" class="form-control" />
+                <span asp-validation-for="Instructor.PhoneNumber" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">الهاتف</label>
-            <input asp-for="Instructor.PhoneNumber" class="form-control" />
-            <span asp-validation-for="Instructor.PhoneNumber" class="text-danger"></span>
-        </div>
-    </div>
     
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">كلمة المرور</label>
-            <input asp-for="Instructor.Password" class="form-control" />
-            <span asp-validation-for="Instructor.Password" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">كلمة المرور</label>
+                <input asp-for="Instructor.Password" class="form-control" />
+                <span asp-validation-for="Instructor.Password" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">تاريخ الميلاد</label>
+                <input asp-for="Instructor.DateOfBirth" class="form-control" />
+                <span asp-validation-for="Instructor.DateOfBirth" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">تاريخ الميلاد</label>
-            <input asp-for="Instructor.DateOfBirth" class="form-control" />
-            <span asp-validation-for="Instructor.DateOfBirth" class="text-danger"></span>
-        </div>
-    </div>
     
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">السيرة الذاتية</label>
-            <input asp-for="Instructor.CvPath" class="form-control" />
-            <span asp-validation-for="Instructor.CvPath" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">السيرة الذاتية</label>
+                <input asp-for="Instructor.CvPath" class="form-control" />
+                <span asp-validation-for="Instructor.CvPath" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الفيديو التعريفي</label>
+                <input asp-for="Instructor.VideoPath" class="form-control" />
+                <span asp-validation-for="Instructor.VideoPath" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">الفيديو التعريفي</label>
-            <input asp-for="Instructor.VideoPath" class="form-control" />
-            <span asp-validation-for="Instructor.VideoPath" class="text-danger"></span>
+    
+        <div class="row mb-3">
+            <label class="form-label">نبذة مختصرة</label>
+            <input asp-for="Instructor.Bio" class="form-control" />
+            <span asp-validation-for="Instructor.Bio" class="text-danger"></span>
         </div>
-    </div>
+        <div>
+            <input type="submit" class="btn btn-primary" value="اضافة" />
+        </div>
     
-    <div class="row mb-3">
-        <label class="form-label">نبذة مختصرة</label>
-        <input asp-for="Instructor.Bio" class="form-control" />
-        <span asp-validation-for="Instructor.Bio" class="text-danger"></span>
-    </div>
-    <div>
-        <input type="submit" class="btn btn-primary" value="اضافة" />
-    </div>
-    
-</form>
+    </form>
+</div>

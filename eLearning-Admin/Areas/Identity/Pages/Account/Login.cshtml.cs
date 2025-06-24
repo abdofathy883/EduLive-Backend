@@ -22,11 +22,13 @@ namespace eLearning_Admin.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<BaseUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<BaseUser> _userManager;
 
-        public LoginModel(SignInManager<BaseUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<BaseUser> signInManager, ILogger<LoginModel> logger, UserManager<BaseUser> userManager)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -110,6 +112,52 @@ namespace eLearning_Admin.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
+
+                _logger.LogInformation("Attempting login for user: {Email}", Input.Email);
+
+                // Check if user exists
+                var user = await _userManager.FindByEmailAsync(Input.Email);
+                if (user == null)
+                {
+                    _logger.LogWarning("Login attempt for non-existent user: {Email}", Input.Email);
+                    ModelState.AddModelError(string.Empty, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+                    return Page();
+                }
+
+                _logger.LogInformation("User found - ID: {UserId}, UserName: {UserName}, Email: {Email}, EmailConfirmed: {EmailConfirmed}, LockoutEnabled: {LockoutEnabled}, LockoutEnd: {LockoutEnd}",
+                   user.Id, user.UserName, user.Email, user.EmailConfirmed, user.LockoutEnabled, user.LockoutEnd);
+
+                // Check password manually first
+                var passwordCheck = await _userManager.CheckPasswordAsync(user, Input.Password);
+                _logger.LogInformation("Password check result: {PasswordValid}", passwordCheck);
+
+                if (!passwordCheck)
+                {
+                    _logger.LogWarning("Password validation failed for user: {Email}", Input.Email);
+                    ModelState.AddModelError(string.Empty, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+                    return Page();
+                }
+
+                // Check if user can sign in
+                var canSignIn = await _signInManager.CanSignInAsync(user);
+                _logger.LogInformation("Can sign in check: {CanSignIn}", canSignIn);
+
+                if (!canSignIn)
+                {
+                    _logger.LogWarning("User cannot sign in: {Email}", Input.Email);
+                    ModelState.AddModelError(string.Empty, "لا يمكن تسجيل الدخول لهذا المستخدم");
+                    return Page();
+                }
+
+                // Check if account is locked
+                var isLockedOut = await _userManager.IsLockedOutAsync(user);
+                _logger.LogInformation("Is locked out: {IsLockedOut}", isLockedOut);
+
+                if (isLockedOut)
+                {
+                    _logger.LogWarning("User account is locked out: {Email}", Input.Email);
+                    return RedirectToPage("./Lockout");
+                }
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);

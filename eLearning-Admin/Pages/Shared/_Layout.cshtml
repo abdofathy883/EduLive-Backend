@@ -6,19 +6,23 @@
     <title>@ViewData["Title"] - eLearning_Admin</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" />
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/eLearning_Admin.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <div class="row vh-100">
-        @if(User.Identity.IsAuthenticated)
-        {
-        <div class="col-2 sidebar">
-            <header>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="app-shell">
+            <div class="sidebar" id="sidebar">
+                <button id="toggleSidebar" class="toggle-btn">
+                    <i class="bi bi-list" style="font-size: 25px;"></i>
+                </button>
                 <nav class="navbar navbar-expand-sm mb-3">
                     <div class="container d-flex flex-column align-items-start">
                         <a class="navbar-brand" asp-area="" asp-page="/Index">
-                            <img src="/assets/Logo.webp" width="150" height="150"/>
+                            <img src="/assets/Logo.webp" width="150" height="150" />
                         </a>
                         <div class="justify-content-between">
                             <ul class="navbar-nav flex-grow-1 flex-column">
@@ -49,34 +53,33 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item">
-                                            <a class="nav-link text-white" asp-area="" asp-page="/ContactForm/Index">فورم التواصل</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-white" asp-page="/Areas/Identity/Pages/Account/Manage/Index">profile</a>
+                                    <a class="nav-link text-white" asp-area="" asp-page="/ContactForm/Index">فورم التواصل</a>
                                 </li>
                             </ul>
-                            <partial name="_LoginPartial" />
                         </div>
                     </div>
                 </nav>
-            </header>
-        </div>
-        } 
-        <div class="col-10">
-            <div class="container py-4">
-                <main role="main" class="pb-3">
-                    @RenderBody()
-                </main>
             </div>
-
+            <div class="main-content">
+                <div class="container py-4">
+                    <main role="main" class="pb-3">
+                        <partial name="_LoginPartial" />
+                        @RenderBody()
+                    </main>
+                </div>
+            </div>
         </div>
-    </div>
-    
+    }
+        <div class="container py-4">
+            <main role="main" class="pb-3">
+                <partial name="_LoginPartial" />
+                @RenderBody()
+            </main>
+        </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

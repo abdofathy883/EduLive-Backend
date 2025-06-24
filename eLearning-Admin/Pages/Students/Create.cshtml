@@ -3,47 +3,48 @@
 @{
     ViewData["Title"] = "Create";
 }
+<div class="container">
+    <h1>اضافة طالب جديد</h1>
+    <hr />
+    <form method="post">
 
-<h1>اضافة طالب جديد</h1>
-<hr />
-<form method="post">
-
-    <div class="row mb-3">
-        <div class="col">
-            <label asp-for="Student.FirstName"></label>
-            <input asp-for="Student.FirstName" class="form-control" />
-            <span asp-validation-for="Student.FirstName" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">الاسم الاول</label>
+                <input asp-for="Student.FirstName" class="form-control" />
+                <span asp-validation-for="Student.FirstName" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الاسم الاخير</label>
+                <input asp-for="Student.LastName" class="form-control" />
+                <span asp-validation-for="Student.LastName" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label asp-for="Student.LastName"></label>
-            <input asp-for="Student.LastName" class="form-control" />
-            <span asp-validation-for="Student.LastName" class="text-danger"></span>
-        </div>
-    </div>
     
-    <div class="row mb-3">
-        <div class="col">
-            <label asp-for="Student.Email"></label>
-            <input asp-for="Student.Email" class="form-control" />
-            <span asp-validation-for="Student.Email" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">البريد الالكتروني</label>
+                <input asp-for="Student.Email" class="form-control" />
+                <span asp-validation-for="Student.Email" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الهاتف</label>
+                <input asp-for="Student.PhoneNumber" class="form-control" />
+                <span asp-validation-for="Student.PhoneNumber" class="text-danger"></span>
+            </div>
+        </div><div class="row mb-3">
+            <div class="col">
+                <label class="form-label">تاريخ الميلاد</label>
+                <input asp-for="Student.DateOfBirth" class="form-control" type="date"/>
+                <span asp-validation-for="Student.DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">كلمة السر</label>
+                <input asp-for="Student.Password" class="form-control" />
+                <span asp-validation-for="Student.Password" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label asp-for="Student.FirstName"></label>
-            <input asp-for="Student.PhoneNumber" class="form-control" />
-            <span asp-validation-for="Student.PhoneNumber" class="text-danger"></span>
-        </div>
-    </div><div class="row mb-3">
-        <div class="col">
-            <label asp-for="Student.DateOfBirth"></label>
-            <input asp-for="Student.DateOfBirth" class="form-control" />
-            <span asp-validation-for="Student.DateOfBirth" class="text-danger"></span>
-        </div>
-        <div class="col">
-            <label asp-for="Student.FirstName"></label>
-            <input asp-for="Student.Password" class="form-control" />
-            <span asp-validation-for="Student.Password" class="text-danger"></span>
-        </div>
-    </div>
 
-    <input type="submit" class="btn btn-primary" value="اضافة"/>
-</form>
+        <input type="submit" class="btn btn-primary" value="اضافة"/>
+    </form>
+</div>

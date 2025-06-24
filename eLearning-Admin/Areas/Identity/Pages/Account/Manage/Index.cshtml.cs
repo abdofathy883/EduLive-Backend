@@ -46,6 +46,8 @@ namespace eLearning_Admin.Areas.Identity.Pages.Account.Manage
         [BindProperty]
         public InputModel Input { get; set; }
 
+        public string FirstName { get; set; }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -59,6 +61,12 @@ namespace eLearning_Admin.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Email { get; set; }
+            public DateOnly DateOfBirth { get; set; }
+            public string Password { get; set; }
         }
 
         private async Task LoadAsync(BaseUser user)
@@ -70,7 +78,12 @@ namespace eLearning_Admin.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                DateOfBirth = user.DateOfBirth ?? default,
+                Password = user.PasswordHash
             };
         }
 
@@ -82,6 +95,15 @@ namespace eLearning_Admin.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+            //Input = new InputModel
+            //{
+            //    FirstName = user.FirstName,
+            //    LastName = user.LastName,
+            //    Email = user.Email,
+            //    PhoneNumber = user.PhoneNumber,
+            //    DateOfBirth = (DateOnly)user.DateOfBirth,
+            //    Password = user.PasswordHash
+            //};
             await LoadAsync(user);
             return Page();
         }

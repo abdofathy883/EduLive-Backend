@@ -2,78 +2,79 @@
 @model eLearning_Admin.Pages.Instructors.EditModel
 @{
 }
+<div class="container">
+    <h1>@Model.Instructor.FirstName</h1>
+    <hr />
 
-<h1>@Model.Instructor.FirstName</h1>
-<hr />
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Instructor.Id" />
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">الاسم الاول</label>
+                <input asp-for="Instructor.FirstName" class="form-control" />
+                <span asp-validation-for="Instructor.FirstName" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الاسم الاخير</label>
+                <input asp-for="Instructor.LastName" class="form-control" />
+                <span asp-validation-for="Instructor.LastName" class="text-danger"></span>
+            </div>
+        </div>
 
-<form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Instructor.Id" />
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">الاسم الاول</label>
-            <input asp-for="Instructor.FirstName" class="form-control" />
-            <span asp-validation-for="Instructor.FirstName" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">الايميل</label>
+                <input asp-for="Instructor.Email" class="form-control" />
+                <span asp-validation-for="Instructor.Email" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الهاتف</label>
+                <input asp-for="Instructor.PhoneNumber" class="form-control" />
+                <span asp-validation-for="Instructor.PhoneNumber" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">الاسم الاخير</label>
-            <input asp-for="Instructor.LastName" class="form-control" />
-            <span asp-validation-for="Instructor.LastName" class="text-danger"></span>
-        </div>
-    </div>
 
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">الايميل</label>
-            <input asp-for="Instructor.Email" class="form-control" />
-            <span asp-validation-for="Instructor.Email" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">تاريخ الميلاد</label>
+                <input asp-for="Instructor.DateOfBirth" class="form-control" />
+                <span asp-validation-for="Instructor.DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">كلمة المرور</label>
+                <input asp-for="Instructor.PasswordHash" class="form-control" />
+                <span asp-validation-for="Instructor.PasswordHash" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">الهاتف</label>
-            <input asp-for="Instructor.PhoneNumber" class="form-control" />
-            <span asp-validation-for="Instructor.PhoneNumber" class="text-danger"></span>
-        </div>
-    </div>
 
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">تاريخ الميلاد</label>
-            <input asp-for="Instructor.DateOfBirth" class="form-control" />
-            <span asp-validation-for="Instructor.DateOfBirth" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">السيرة الذاتية</label>
+                <input asp-for="Instructor.CV" type="file" class="form-control"/>
+            </div>
+            <div class="col">
+                <label class="form-label">الفيديو التعريفي</label>
+                <input asp-for="Instructor.IntroVideo" type="file" class="form-control"/>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">كلمة المرور</label>
-            <input asp-for="Instructor.PasswordHash" class="form-control" />
-            <span asp-validation-for="Instructor.PasswordHash" class="text-danger"></span>
-        </div>
-    </div>
 
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">السيرة الذاتية</label>
-            <input asp-for="Instructor.CV" type="file" class="form-control"/>
+        <div class="row mb-3">
+            <label class="form-label">نبذة</label>
+            <textarea class="form-control" asp-for="Instructor.Bio"></textarea>
         </div>
-        <div class="col">
-            <label class="form-label">الفيديو التعريفي</label>
-            <input asp-for="Instructor.IntroVideo" type="file" class="form-control"/>
+        <div class="mb-3 form-check form-switch form-check-reverse">
+            <input class="form-check-input" type="checkbox" id="switchCheckReverse" asp-for="Instructor.IsApproved" />
+            <label class="form-check-label" for="switchCheckReverse">تأكيد المعلم!!!</label>
         </div>
-    </div>
+        <div class="mb-3">
+            <input type="submit" value="تعديل" class="btn btn-primary" />
+        </div>
+    </form>
 
-    <div class="row mb-3">
-        <label class="form-label">نبذة</label>
-        <textarea class="form-control" asp-for="Instructor.Bio"></textarea>
+    <div>
+        <a asp-page="./Index">العودة الى قائمة المعلمين</a>
     </div>
-    <div class="mb-3 form-check form-switch form-check-reverse">
-        <input class="form-check-input" type="checkbox" id="switchCheckReverse" asp-for="Instructor.IsApproved" />
-        <label class="form-check-label" for="switchCheckReverse">تأكيد المعلم!!!</label>
-    </div>
-    <div class="mb-3">
-        <input type="submit" value="تعديل" class="btn btn-primary" />
-    </div>
-</form>
-
-<div>
-    <a asp-page="./Index">العودة الى قائمة المعلمين</a>
 </div>
 @section Scripts {
     @{

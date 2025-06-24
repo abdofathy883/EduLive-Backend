@@ -12,13 +12,14 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.Tasks;
 using E_LearningDbContextAlias = Infrastructure.Data.E_LearningDbContext;
 
 namespace eLearning_Admin
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -27,12 +28,12 @@ namespace eLearning_Admin
             builder.Services.AddDbContext<E_LearningDbContextAlias>(options =>
                 options.UseSqlServer(connectionString));
 
-            builder.Services.AddIdentity<BaseUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+
+            builder.Services.AddIdentity<BaseUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<E_LearningDbContextAlias>()
                 .AddDefaultTokenProviders();
 
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("MailSettings"));
-
 
             builder.Services.AddRazorPages(options =>
             {
@@ -60,37 +61,50 @@ namespace eLearning_Admin
                 options.AddPolicy("RequireAuth", policy => policy.RequireAuthenticatedUser());
             });
 
-
             builder.Services.AddAuthentication(options =>
             {
-                //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
             .AddCookie(options =>
             {
                 options.LoginPath = "/Identity/Account/Login";
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.LogoutPath = "/Identity/Account/Logout";
                 options.ExpireTimeSpan = TimeSpan.FromHours(24);
+                options.SlidingExpiration = true;
+                options.Cookie.HttpOnly = true;
                 options.Cookie.SameSite = SameSiteMode.Lax;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            })
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.SaveToken = true;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+                    ClockSkew = TimeSpan.Zero
+                };
             });
-            //.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            //{
-            //    options.SaveToken = true;
-            //    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-            //    {
-            //        ValidateIssuer = true,
-            //        ValidateAudience = true,
-            //        ValidateLifetime = true,
-            //        ValidateIssuerSigningKey = true,
-            //        ValidIssuer = jwtOptions.Issuer,
-            //        ValidAudience = jwtOptions.Audience,
-            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
-            //        ClockSkew = TimeSpan.Zero
-            //    };
-            //});
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.LogoutPath = "/Identity/Account/Logout";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromHours(24);
+                options.SlidingExpiration = true;
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Use Always in production
+                options.Cookie.SameSite = SameSiteMode.Lax;
+            });
 
 
             var app = builder.Build();
@@ -107,6 +121,7 @@ namespace eLearning_Admin
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
@@ -117,7 +132,45 @@ namespace eLearning_Admin
             app.MapRazorPages()
                .WithStaticAssets();
 
+            await SeedTestUser(app);
+
             app.Run();
         }
-    }
+
+        private static async Task SeedTestUser(WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<BaseUser>>();
+
+            const string testEmail = "abdofathy99@outlook.com";
+            const string testPassword = "Aa123#";
+
+            var existingUser = await userManager.FindByEmailAsync(testEmail);
+            if (existingUser == null)
+            {
+                var testUser = new BaseUser
+                {
+                    FirstName = "Abdo",
+                    LastName = "Admin",
+                    UserName = testEmail,
+                    Email = testEmail,
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(testUser, testPassword);
+                if (result.Succeeded)
+                {
+                    Console.WriteLine($"Test user created: {testEmail} / {testPassword}");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to create test user:");
+                    foreach (var error in result.Errors)
+                    {
+                        Console.WriteLine($"- {error.Description}");
+                    }
+                }
+            }
+        }
+    }  
 }

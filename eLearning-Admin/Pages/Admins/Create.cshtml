@@ -3,51 +3,52 @@
 @{
     ViewData["Title"] = "Create Admin";
 }
+<div class="container">
+    <h1>اضافة مدير جديد</h1>
+    <hr />
 
-<h1>اضافة مدير جديد</h1>
-<hr />
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">الاسم الاول</label>
-            <input asp-for="Admin.FirstName" class="form-control" />
-            <span asp-validation-for="Admin.FirstName" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">الاسم الاول</label>
+                <input asp-for="Admin.FirstName" class="form-control" />
+                <span asp-validation-for="Admin.FirstName" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الاسم الاخير</label>
+                <input asp-for="Admin.LastName" class="form-control" />
+                <span asp-validation-for="Admin.LastName" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">الاسم الاخير</label>
-            <input asp-for="Admin.LastName" class="form-control" />
-            <span asp-validation-for="Admin.LastName" class="text-danger"></span>
-        </div>
-    </div>
     
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">البريد الالكتروني</label>
-            <input asp-for="Admin.Email" class="form-control" />
-            <span asp-validation-for="Admin.Email" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">البريد الالكتروني</label>
+                <input asp-for="Admin.Email" class="form-control" />
+                <span asp-validation-for="Admin.Email" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">الهاتف</label>
+                <input asp-for="Admin.PhoneNumber" class="form-control" />
+                <span asp-validation-for="Admin.PhoneNumber" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">الهاتف</label>
-            <input asp-for="Admin.PhoneNumber" class="form-control" />
-            <span asp-validation-for="Admin.PhoneNumber" class="text-danger"></span>
-        </div>
-    </div>
     
-    <div class="row mb-3">
-        <div class="col">
-            <label class="form-label">تاريخ الميلاد</label>
-            <input asp-for="Admin.DateOfBirth" class="form-control" />
-            <span asp-validation-for="Admin.DateOfBirth" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">تاريخ الميلاد</label>
+                <input asp-for="Admin.DateOfBirth" class="form-control" />
+                <span asp-validation-for="Admin.DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label class="form-label">كلمة المرور</label>
+                <input asp-for="Admin.PasswordHash" class="form-control" />
+                <span asp-validation-for="Admin.PasswordHash" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col">
-            <label class="form-label">كلمة المرور</label>
-            <input asp-for="Admin.PasswordHash" class="form-control" />
-            <span asp-validation-for="Admin.PasswordHash" class="text-danger"></span>
-        </div>
-    </div>
 
-    <input type="submit" value="اضافة" class="btn btn-primary" />
-</form>
+        <input type="submit" value="اضافة" class="btn btn-primary" />
+    </form>
+</div>

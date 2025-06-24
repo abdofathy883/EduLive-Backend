@@ -4,47 +4,45 @@
 @{
     ViewData["Title"] = "Edit";
 }
-
-<h1>Edit</h1>
-
-<h4>Blog</h4>
-<hr />
 <div class="container">
-    <form method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="Blog.Id" />
-        <div class="row mb-3">
-            <label class="form-label">العنوان</label>
-            <input asp-for="Blog.Title" class="form-control" />
-            <span asp-validation-for="Blog.Title" class="text-danger"></span>
-        </div>
+    <h1>@Model.Blog.Title</h1>
+    <hr />
+    <div class="container">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Blog.Id" />
+            <div class="row mb-3">
+                <label class="form-label">العنوان</label>
+                <input asp-for="Blog.Title" class="form-control" />
+                <span asp-validation-for="Blog.Title" class="text-danger"></span>
+            </div>
 
-        <div class="row mb-3">
-            <label class="control-label">المحتوي</label>
-            <textarea asp-for="Blog.Content" class="form-control"></textarea>
-            @* <input asp-for="Blog.Content" class="form-control" /> *@
-            <span asp-validation-for="Blog.Content" class="text-danger"></span>
-        </div>
+            <div class="row mb-3">
+                <label class="control-label">المحتوي</label>
+                <textarea asp-for="Blog.Content" class="form-control"></textarea>
+                <span asp-validation-for="Blog.Content" class="text-danger"></span>
+            </div>
 
-        <div class="row mb-3">
-            <label asp-for="Blog.PostImage" class="control-label"></label>
-            <input asp-for="Blog.PostImage" class="form-control" />
-            <span asp-validation-for="Blog.PostImage" class="text-danger"></span>
-        </div>
+            <div class="row mb-3">
+                <label asp-for="Blog.PostImage" class="control-label"></label>
+                <input asp-for="Blog.PostImage" class="form-control" />
+                <span asp-validation-for="Blog.PostImage" class="text-danger"></span>
+            </div>
 
-        <div class="form-group form-check form-switch form-check-reverse mb-3">
-            <input class="form-check-input" type="checkbox" id="switchCheckReverse" asp-for="Blog.IsDeleted" />
-            <label class="form-check-label" for="switchCheckReverse">اخفاء</label>
-        </div>
+            <div class="form-group form-check form-switch form-check-reverse mb-3">
+                <input class="form-check-input" type="checkbox" id="switchCheckReverse" asp-for="Blog.IsDeleted" />
+                <label class="form-check-label" for="switchCheckReverse">اخفاء</label>
+            </div>
 
-        <div class="form-group mb-3">
-            <input type="submit" value="حفظ" class="btn btn-primary" />
-        </div>
-    </form>
-</div>
+            <div class="form-group mb-3">
+                <input type="submit" value="حفظ" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
 
-<div>
-    <a asp-page="./Index">العودة الى قائمة المقالات</a>
+    <div>
+        <a asp-page="./Index">العودة الى قائمة المقالات</a>
+    </div>
 </div>
 
 @section Scripts {

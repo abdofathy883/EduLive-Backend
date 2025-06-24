@@ -5,24 +5,47 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
+<h3>حسابك</h3>
 <partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
+<div class="container">
         <form id="profile-form" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
-                <label asp-for="Username" class="form-label"></label>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
+            <div class="mb-3">
+                <label class="form-label">الاسم الاول</label>
+                <input asp-for="Input.FirstName" class="form-control" placeholder="Please enter your phone number." />
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+
+            <div class="mb-3">
+                <label class="form-label">الاسم الاخير</label>
+                <input asp-for="Input.LastName" class="form-control" placeholder="Please enter your phone number." />
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">رقم الهاتف</label>
+                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">تاريخ الميلاد</label>
+                <input type="date" asp-for="Input.DateOfBirth" class="form-control" placeholder="Please enter your phone number." />
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">كلمة السر</label>
+                <input asp-for="Input.Password" class="form-control" placeholder="Please enter your phone number." />
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span> 
+            </div>
+            <div class="mb-3">
+                <label class="form-label">البريد الالكتروني</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="Please choose your username." disabled />
+                <small class="text-danger">لا يمكن تغيير البريد الالكتروني</small>
+            </div>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-primary">حفظ</button>
         </form>
-    </div>
 </div>
 
 @section Scripts {
