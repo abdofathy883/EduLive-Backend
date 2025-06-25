@@ -15,7 +15,6 @@ namespace Core.Models
         public DateOnly? DateOfBirth { get; set; }
         public List<RefreshToken> RefreshTokens { get; set; }
         public List<Notification> Notifications { get; set; }
-        public string? StripeCustomerId { get; set; }
         public DateTime CreatedAt { get ; set ; }
         public DateTime? UpdatedAt { get ; set ; }
         public bool IsDeleted { get; set; }

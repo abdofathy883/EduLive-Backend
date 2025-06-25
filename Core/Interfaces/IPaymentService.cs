@@ -9,10 +9,11 @@ namespace Core.Interfaces
 {
     public interface IPaymentService
     {
-        Task<CheckoutSessionDTO> GetSessionDetailsAsync(string SessionId);
-        Task<string> CreateCheckoutSessionAsync(decimal amount, string currency, string successURL, string cancelURL);
-        Task<string> CreateSubscriptionSessionAsync(string customerEmail, string priceId, string successURL, string cancelURL);
-        Task<bool> CancelSubscriptionAsync(string subscriptionId);
-        Task<bool> RefundPaymentAsync(string paymentIntentId);
+        //Task<CheckoutSessionDTO> GetSessionDetailsAsync(string SessionId);
+        Task<string> CreateCheckoutSessionAsync(string studentId, int courseId, decimal amount);
+        Task HandelPAymentSuccessAsync(string sessionId);
+        //Task<string> CreateSubscriptionSessionAsync(string customerEmail, string priceId, string successURL, string cancelURL);
+        //Task<bool> CancelSubscriptionAsync(string subscriptionId);
+        //Task<bool> RefundPaymentAsync(string paymentIntentId);
     }
 }

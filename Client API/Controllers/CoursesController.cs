@@ -10,9 +10,11 @@ namespace Client_API.Controllers
     public class CoursesController : ControllerBase
     {
         private readonly ICourse courseService;
-        public CoursesController(ICourse service)
+        private readonly IAuth auth;
+        public CoursesController(ICourse service, IAuth _auth)
         {
             courseService = service;
+            auth = _auth;
         }
         [HttpPost("add-new-course")]
         public async Task<ActionResult<CourseDTO>> AddCourseAsync([FromForm] CourseDTO course)
@@ -76,7 +78,7 @@ namespace Client_API.Controllers
         [HttpGet("get-instructor/{instructorId}")]
         public async Task<ActionResult<InstructorUser>> GetInstructorByIdAsync(string instructorId)
         {
-            var instructor = await courseService.GetInstructorByIdAsync(instructorId);
+            var instructor = await auth.GetInstructorByIdAsync(instructorId);
             if (instructor is null) return NotFound();
             return Ok(instructor);
         }

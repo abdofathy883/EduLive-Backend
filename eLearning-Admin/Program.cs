@@ -46,7 +46,7 @@ namespace eLearning_Admin
             builder.Services.AddScoped<IBlogService, BlogService>();
             builder.Services.AddScoped<IAuth, AuthService>();
 
-            builder.Services.AddScoped<ImagesUploadsService>();
+            builder.Services.AddScoped<MediaUploadsService>();
 
             //builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddTransient<IEmailSender, EmailService>();

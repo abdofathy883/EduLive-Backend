@@ -34,7 +34,6 @@ namespace Infrastructure.Data.ModelConfigrations
                 .WithMany(p => p.InstructorReviews)
                 .HasForeignKey(p => p.InstructorId)
                 .OnDelete(DeleteBehavior.NoAction);
-                //.OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(p => p.Student)
                 .WithMany(p => p.InstructorReviews)

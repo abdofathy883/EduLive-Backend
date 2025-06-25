@@ -31,7 +31,8 @@ namespace Infrastructure.Data
         public DbSet<GoogleMeetAccount> GoogleMeetAccount { get; set; }
         public DbSet<GoogleMeetLesson> GoogleMeetLessons { get; set; }
         public DbSet<GoogleMeetSettings> GoogleMeetSettings { get; set; }
-        //public DbSet<CoursePaymentInfo> CoursePaymentInfos { get; set; }
+        // Payments
+        public DbSet<Payment> Payments { get; set; }
         //public DbSet<Notification> Notifications {  get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<ContactForm> ContactForms { get; set; }

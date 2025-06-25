@@ -1,4 +1,5 @@
 ﻿using Core.DTOs;
+using Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace Core.Interfaces
         Task<UserDTO> GetUserByIDAsync(string userId);
         Task<bool> DeleteUserAsync(string userId);
         Task<AuthDTO> InstructorRegisterAsync(InstructorRegisterDTO instructorDto);
+        Task<InstructorUser> GetInstructorByIdAsync(string instructorId);
 
     }
 }

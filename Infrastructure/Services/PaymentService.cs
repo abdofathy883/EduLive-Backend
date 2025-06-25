@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.DTOs;
+﻿using Core.Enums;
 using Core.Interfaces;
+using Core.Models;
+using Microsoft.Extensions.Configuration;
 using Stripe;
 using Stripe.Checkout;
 
@@ -12,85 +9,75 @@ namespace Infrastructure.Services
 {
     public class PaymentService : IPaymentService
     {
-        string publicKey = "pk_test_51RLJh9QdtujEkXDTBVd00fiQXx5jP83lEWQ51MWXQNz2AMfmCu5bgnQWNWGTXS5BQdujXwrxr8RnjsDh1dz7tDcN00MKHhzYKx";
-        string secretKey = "sk_test_51RLJh9QdtujEkXDTmTEE70BRqzWDmxoIUSzYgnr6aCHgNjmpqys6Car4dMdfwgZewL6TYwQcbZwhHn41ImHtAx8Y00SmyFsmhX";
-
-        public async Task<bool> CancelSubscriptionAsync(string subscriptionId)
+        private readonly IConfiguration config;
+        private readonly ITransactionsService transactionsService;
+        private readonly ICourse courseService;
+        public PaymentService(IConfiguration _config, ITransactionsService transactionsService, ICourse course)
         {
-            var service = new Stripe.SubscriptionService();
-            var canceledSubscription = await service.CancelAsync(subscriptionId);
-            return canceledSubscription.Status == "canceled";
+            config = _config;
+            StripeConfiguration.ApiKey = config["Stripe:SecretKey"];
+            this.transactionsService = transactionsService;
+            courseService = course;
         }
 
-        public async Task<string> CreateCheckoutSessionAsync(decimal amount, string currency, string successURL, string cancelURL)
+        public async Task<string> CreateCheckoutSessionAsync(string studentId, int courseId, decimal amount)
         {
             var options = new Stripe.Checkout.SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "Card" },
-                Currency = currency,
-                SuccessUrl = successURL,
-                CancelUrl = cancelURL,
                 LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
                 {
                     new Stripe.Checkout.SessionLineItemOptions
                     {
-
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            Currency = "usd",
+                            UnitAmount = (long)(amount * 100), // Convert to cents
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = "Course Payment",
+                                Description = $"Payment for course ID: {courseId} by student ID: {studentId}"
+                            }
+                        },
+                        Quantity = 1
                     }
                 },
-                Mode = "Payment"
+                Mode = "Payment",
+                SuccessUrl = config["Stripe:SuccessUrl"],
+                CancelUrl = config["Stripe:CancelUrl"],
+                Metadata = new Dictionary<string, string>
+                {
+                    { "StudentId", studentId },
+                    { "CourseId", courseId.ToString() }
+                }
             };
-            var service = new Stripe.Checkout.SessionService();
-            Stripe.Checkout.Session session = await service.CreateAsync(options);
+            var service = new SessionService();
+            Session session = await service.CreateAsync(options);
             return session.Url;
         }
 
-        public async Task<string> CreateSubscriptionSessionAsync(string customerEmail, string priceId, string successURL, string cancelURL)
-        {
-            var options = new Stripe.Checkout.SessionCreateOptions
-            {
-                Mode = "subscription",
-                PaymentMethodTypes = new List<string> { "card" },
-                CustomerEmail = customerEmail,
-                LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
-        {
-            new Stripe.Checkout.SessionLineItemOptions
-            {
-                Price = priceId, // Pre-created Price ID from Stripe dashboard
-                Quantity = 1
-            }
-        },
-                SuccessUrl = successURL,
-                CancelUrl = cancelURL
-            };
-
-            var service = new Stripe.Checkout.SessionService();
-            var session = await service.CreateAsync(options);
-            return session.Url;
-        }
-
-        public async Task<CheckoutSessionDTO> GetSessionDetailsAsync(string SessionId)
+        public async Task HandelPAymentSuccessAsync(string sessionId)
         {
             var service = new SessionService();
-            var session = await service.GetAsync(SessionId);
+            var session = await service.GetAsync(sessionId);
 
-            return new CheckoutSessionDTO
-            {
-                Id = int.TryParse(session.Id, out var parsedId) ? parsedId : 0, // Convert string to int safely
-                PaymentStatus = session.PaymentStatus,
-                CustomerEmail = session.CustomerEmail,
-                AmountTotla = session.AmountTotal ?? 0
-            };
-        }
+            string studentId = session.Metadata["StudentId"];
+            int courseId = int.Parse(session.Metadata["CourseId"]);
+            decimal amount = session.AmountTotal.HasValue ? session.AmountTotal.Value / 100m : 0m;
 
-        public async Task<bool> RefundPaymentAsync(string paymentIntentId)
-        {
-            var refundOptions = new RefundCreateOptions
+            var course = await courseService.GetCourseByIdAsync(courseId);
+            var instructorId = course.InstructorId;
+
+            var transaction = new Payment
             {
-                PaymentIntent = paymentIntentId
+                StudentId = studentId,
+                CourseId = courseId,
+                InstructorId = instructorId,
+                Amount = amount,
+                Status = PaymentStatus.Succeeded,
+                CreatedAt = DateTime.UtcNow
             };
-            var refundService = new RefundService();
-            var refund = await refundService.CreateAsync(refundOptions);
-            return refund.Status == "succeeded";
+            await transactionsService.AddAsync(transaction);
         }
     }
 }

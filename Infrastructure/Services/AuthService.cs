@@ -15,10 +15,10 @@ namespace Infrastructure.Services
 {
     public class AuthService : IAuth
     {
-        private readonly ImagesUploadsService uploadsService;
+        private readonly MediaUploadsService uploadsService;
         private readonly UserManager<BaseUser> userManager;
         private readonly IJWT jWT;
-        public AuthService(ImagesUploadsService images, UserManager<BaseUser> manager, IJWT _jWT)
+        public AuthService(MediaUploadsService images, UserManager<BaseUser> manager, IJWT _jWT)
         {
             uploadsService = images;
             userManager = manager;
@@ -258,33 +258,6 @@ namespace Infrastructure.Services
 
             return errors;
         }
-        //public async Task<AuthDTO> ApproveInstructorAsync(string instructorId)
-        //{
-        //    //To be continued
-        //    //var test = await userManager.
-        //    var instructor = await userManager.FindByIdAsync(instructorId);
-        //    if (instructor is null)
-        //    {
-        //        throw new KeyNotFoundException("User can not be found");
-        //    }
-
-        //    var newInstructor = new InstructorUser
-        //    {
-        //        FirstName = instructor.FirstName,
-        //        LastName = instructor.LastName,
-        //        Email = instructor.Email,
-        //        PhoneNumber = instructor.PhoneNumber,
-        //        //CV = instructor.
-        //    };
-        //    await userManager.AddToRoleAsync(instructor, UserRoles.Instructor.ToString());
-        //    //await userManager.addas
-        //    return new AuthDTO
-        //    {
-        //        IsAuthenticated = true,
-        //        Message = "تم تاكيد تسجيلك على منصتنا ك معلم"
-        //    };
-        //}
-
         public static AuthDTO FailResult(string message)
         {
             return new AuthDTO
@@ -340,6 +313,15 @@ namespace Infrastructure.Services
             return userDTO;
         }
 
+        public async Task<InstructorUser> GetInstructorByIdAsync(string instructorId)
+        {
+            var instructor = await userManager.FindByIdAsync(instructorId);
+            if (instructor is null || instructor.IsDeleted)
+            {
+                throw new KeyNotFoundException("Instructor not found or has been deleted");
+            }
+            return (InstructorUser)instructor;
+        }
         public async Task<bool> DeleteUserAsync(string userId)
         {
             var user = await userManager.FindByIdAsync(userId);
@@ -353,32 +335,32 @@ namespace Infrastructure.Services
             return result.Succeeded;
         }
 
-        public async Task<AuthDTO> ApproveInstructorAsync(string instructorId)
-        {
-            var user = await userManager.FindByIdAsync(instructorId);
-            if (user is not InstructorUser instructor)
-            {
-                throw new KeyNotFoundException("Instructor not found");
-            }
-            if (instructor.IsApproved)
-            {
-                return new AuthDTO
-                {
-                    IsAuthenticated = true,
-                    Message = "المعلم تم تأكيده بالفعل"
-                };
-            }
-            instructor.IsApproved = true;
-            var result = await userManager.UpdateAsync(instructor);
-            if (!result.Succeeded)
-            {
-                return FailResult("Failed to approve instructor");
-            }
-            return new AuthDTO
-            {
-                IsAuthenticated = true,
-                Message = "تم الموافقة على المعلم بنجاح"
-            };
-        }
+        //public async Task<AuthDTO> ApproveInstructorAsync(string instructorId)
+        //{
+        //    var user = await userManager.FindByIdAsync(instructorId);
+        //    if (user is not InstructorUser instructor)
+        //    {
+        //        throw new KeyNotFoundException("Instructor not found");
+        //    }
+        //    if (instructor.IsApproved)
+        //    {
+        //        return new AuthDTO
+        //        {
+        //            IsAuthenticated = true,
+        //            Message = "المعلم تم تأكيده بالفعل"
+        //        };
+        //    }
+        //    instructor.IsApproved = true;
+        //    var result = await userManager.UpdateAsync(instructor);
+        //    if (!result.Succeeded)
+        //    {
+        //        return FailResult("Failed to approve instructor");
+        //    }
+        //    return new AuthDTO
+        //    {
+        //        IsAuthenticated = true,
+        //        Message = "تم الموافقة على المعلم بنجاح"
+        //    };
+        //}
     }
 }

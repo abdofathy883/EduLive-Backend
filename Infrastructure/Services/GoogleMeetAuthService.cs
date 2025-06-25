@@ -243,7 +243,5 @@ namespace Infrastructure.Services
 
             return userInfo;
         }
-
-        
     }
 }
