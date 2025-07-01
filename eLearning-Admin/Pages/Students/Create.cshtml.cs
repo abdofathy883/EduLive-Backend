@@ -35,7 +35,6 @@ namespace eLearning_Admin.Pages.Students
                 PhoneNumber = Student.PhoneNumber,
                 DateOfBirth = Student.DateOfBirth,
                 Password = Student.Password,
-                ConfirmPassword = Student.Password
             };
 
             await authService.RegisterAsync(student);

@@ -14,7 +14,7 @@ namespace Infrastructure.Data.ModelConfigrations
         public void Configure(EntityTypeBuilder<InstructorUser> builder)
         {
             builder.Property(p => p.InstructorId)
-                .ValueGeneratedNever();
+                .ValueGeneratedOnAdd();
 
             builder.HasMany(p => p.Courses)
                 .WithOne(i => i.Instructor)

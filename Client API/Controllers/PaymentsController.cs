@@ -25,7 +25,7 @@ namespace Client_API.Controllers
             try
             {
                 var sessionUrl = await paymentService.CreateCheckoutSessionAsync(paymentRequest.StudentId, paymentRequest.CourseId, paymentRequest.Amount);
-                return Ok(new { SessionUrl = sessionUrl });
+                return Ok(new { url = sessionUrl });
             }
             catch (Exception ex)
             {

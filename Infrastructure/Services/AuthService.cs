@@ -133,26 +133,25 @@ namespace Infrastructure.Services
             {
                 return FailResult(string.Join(", ", validateErrors));
             }
-            var userName = registerDTO.Email.Split("@")[0];
+
             var user = new StudentUser
             {
-                StudentId = Convert.ToInt32(Guid.NewGuid()),
+                StudentId = Guid.NewGuid().ToString(),
                 FirstName = registerDTO.FirstName,
                 LastName = registerDTO.LastName,
                 Email = registerDTO.Email,
                 PhoneNumber = registerDTO.PhoneNumber,
                 DateOfBirth = registerDTO.DateOfBirth,
-                UserName = userName
+                UserName = registerDTO.Email.Split("@")[0]
             };
             var result = await userManager.CreateAsync(user, registerDTO.Password);
 
             //Add Role
-
             if (!result.Succeeded)
             {
                 return FailResult(string.Join(", ", validateErrors));
             }
-                await userManager.AddToRoleAsync(user, UserRoles.Student.ToString());
+            await userManager.AddToRoleAsync(user, UserRoles.Student.ToString());
 
             var authDTO = new AuthDTO
             {
@@ -187,10 +186,10 @@ namespace Infrastructure.Services
             }
 
             //Confirm Password
-            if (registerDTO.Password != registerDTO.ConfirmPassword)
-            {
-                errors.Add("كلمة المرور غير متطابقة");
-            }
+            //if (registerDTO.Password != registerDTO.ConfirmPassword)
+            //{
+            //    errors.Add("كلمة المرور غير متطابقة");
+            //}
 
             //Phone 
             if (string.IsNullOrWhiteSpace(registerDTO.PhoneNumber))
@@ -235,10 +234,10 @@ namespace Infrastructure.Services
             }
 
             //Confirm Password
-            if (registerDTO.Password != registerDTO.ConfirmPassword)
-            {
-                errors.Add("كلمة المرور غير متطابقة");
-            }
+            //if (registerDTO.Password != registerDTO.ConfirmPassword)
+            //{
+            //    errors.Add("كلمة المرور غير متطابقة");
+            //}
 
             //Phone 
             if (string.IsNullOrWhiteSpace(registerDTO.PhoneNumber))
@@ -274,8 +273,8 @@ namespace Infrastructure.Services
             {
                 throw new KeyNotFoundException("User cannot be found or has been deleted");
             }
-            user.FirstName = updatedUser.FirstName;
-            user.LastName = updatedUser.LastName;
+            user.FirstName = updatedUser.FirstName ?? user.FirstName;
+            user.LastName = updatedUser.LastName ?? user.LastName;
             user.PhoneNumber = updatedUser.PhoneNumber;
             user.Email = updatedUser.Email;
             user.UpdatedAt = DateTime.UtcNow;
@@ -334,33 +333,5 @@ namespace Infrastructure.Services
             var result = await userManager.UpdateAsync(user);
             return result.Succeeded;
         }
-
-        //public async Task<AuthDTO> ApproveInstructorAsync(string instructorId)
-        //{
-        //    var user = await userManager.FindByIdAsync(instructorId);
-        //    if (user is not InstructorUser instructor)
-        //    {
-        //        throw new KeyNotFoundException("Instructor not found");
-        //    }
-        //    if (instructor.IsApproved)
-        //    {
-        //        return new AuthDTO
-        //        {
-        //            IsAuthenticated = true,
-        //            Message = "المعلم تم تأكيده بالفعل"
-        //        };
-        //    }
-        //    instructor.IsApproved = true;
-        //    var result = await userManager.UpdateAsync(instructor);
-        //    if (!result.Succeeded)
-        //    {
-        //        return FailResult("Failed to approve instructor");
-        //    }
-        //    return new AuthDTO
-        //    {
-        //        IsAuthenticated = true,
-        //        Message = "تم الموافقة على المعلم بنجاح"
-        //    };
-        //}
     }
 }

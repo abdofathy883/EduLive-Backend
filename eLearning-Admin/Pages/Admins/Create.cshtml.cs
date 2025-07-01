@@ -24,18 +24,20 @@ namespace eLearning_Admin.Pages.Admins
         public BaseUser Admin { get; set; } = default!;
         public async Task<IActionResult> OnPostAsync()
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    return Page();
-            //}
+            if (string.IsNullOrEmpty(Admin?.Email))
+            {
+                ModelState.AddModelError(string.Empty, "Email is required.");
+                return Page();
+            }
+
             // Create a new AdminUser object
             var admin = new AdminUser
             {
-                Id = Guid.NewGuid().ToString(),
+                AdminId = Guid.NewGuid().ToString(),
                 FirstName = Admin.FirstName,
                 LastName = Admin.LastName,
                 Email = Admin.Email,
-                UserName = Admin.Email.Split("@")[0],
+                UserName = Admin.Email.Split("@")[0], // Safe to use as Admin.Email is checked for null or empty
                 PhoneNumber = Admin.PhoneNumber,
                 DateOfBirth = Admin.DateOfBirth,
                 PasswordHash = userManager.PasswordHasher.HashPassword(Admin, Admin.PasswordHash),
@@ -44,6 +46,7 @@ namespace eLearning_Admin.Pages.Admins
                 Notifications = new List<Notification>(),
                 RefreshTokens = new List<RefreshToken>()
             };
+
             // Add the new admin to the context
             var result = await userManager.CreateAsync(admin, Admin.PasswordHash);
             if (result.Succeeded)
@@ -51,10 +54,12 @@ namespace eLearning_Admin.Pages.Admins
                 await userManager.AddToRoleAsync(admin, UserRoles.Admin.ToString());
                 return RedirectToPage("./Index");
             }
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
+
             return Page();
         }
     }

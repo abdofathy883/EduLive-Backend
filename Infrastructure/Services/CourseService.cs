@@ -66,17 +66,27 @@ namespace Infrastructure.Services
             return (List<Course>)courses;
         }
 
+        public Task<Category> GetCategoryByIdAsync(int categoryId)
+        {
+            var category = catRepo.GetByIdAsync(categoryId);
+            if (category is null || category.Result.IsDeleted)
+            {
+                return Task.FromResult<Category>(null);
+            }
+            return category;
+        }
+
         public async Task<Course> GetCourseByIdAsync(int courseId)
         {
             var course = await repo.GetByIdAsync(courseId);
-            if (course is not null && course.IsDeleted)
+            if (course is null || course.IsDeleted)
             {
                 course = null;
             }
             return course;
         }
 
-        public async Task<List<Course>> GetEnrolledCoursesAsync(int studentId)
+        public async Task<List<Course>> GetEnrolledCoursesAsync(string studentId)
         {
             var courses = await repo.GetAllAsync();
             var studentCourses = courses

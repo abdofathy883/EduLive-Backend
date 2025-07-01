@@ -79,6 +79,10 @@ namespace Infrastructure.Data.ModelConfigrations
                 .HasForeignKey("CourseId")
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasMany(p => p.EnrolledStudents)
+                .WithMany(c => c.EnrolledCourses)
+                .UsingEntity(j => j.ToTable("StudentCourses"));
+
         }
     }
 }

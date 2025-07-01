@@ -1,6 +1,8 @@
 ﻿using Core.Enums;
 using Core.Interfaces;
 using Core.Models;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 using Stripe.Checkout;
@@ -12,19 +14,24 @@ namespace Infrastructure.Services
         private readonly IConfiguration config;
         private readonly ITransactionsService transactionsService;
         private readonly ICourse courseService;
-        public PaymentService(IConfiguration _config, ITransactionsService transactionsService, ICourse course)
+        private readonly E_LearningDbContext _context;
+        public PaymentService(IConfiguration _config,
+            ITransactionsService transactionsService,
+            ICourse course,
+            E_LearningDbContext context)
         {
             config = _config;
             StripeConfiguration.ApiKey = config["Stripe:SecretKey"];
             this.transactionsService = transactionsService;
             courseService = course;
+            _context = context;
         }
 
         public async Task<string> CreateCheckoutSessionAsync(string studentId, int courseId, decimal amount)
         {
             var options = new Stripe.Checkout.SessionCreateOptions
             {
-                PaymentMethodTypes = new List<string> { "Card" },
+                PaymentMethodTypes = new List<string> { "card" },
                 LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
                 {
                     new Stripe.Checkout.SessionLineItemOptions
@@ -42,7 +49,7 @@ namespace Infrastructure.Services
                         Quantity = 1
                     }
                 },
-                Mode = "Payment",
+                Mode = "payment",
                 SuccessUrl = config["Stripe:SuccessUrl"],
                 CancelUrl = config["Stripe:CancelUrl"],
                 Metadata = new Dictionary<string, string>
@@ -53,10 +60,11 @@ namespace Infrastructure.Services
             };
             var service = new SessionService();
             Session session = await service.CreateAsync(options);
+            Console.WriteLine("Session Created -----");
             return session.Url;
         }
 
-        public async Task HandelPAymentSuccessAsync(string sessionId)
+        public async Task HandelPaymentSuccessAsync(string sessionId)
         {
             var service = new SessionService();
             var session = await service.GetAsync(sessionId);
@@ -77,7 +85,49 @@ namespace Infrastructure.Services
                 Status = PaymentStatus.Succeeded,
                 CreatedAt = DateTime.UtcNow
             };
-            await transactionsService.AddAsync(transaction);
+            await transactionsService.AddTransactionAsync(transaction);
+            await EnrollStudentInCourseAsync(studentId, courseId);
+        }
+
+        private async Task EnrollStudentInCourseAsync(string studentId, int courseId)
+        {
+            try
+            {
+                // Check if student is already enrolled
+                var existingEnrollment = await _context.Set<StudentUser>()
+                    .Include(s => s.EnrolledCourses)
+                    .Where(s => s.StudentId == studentId)
+                    .SelectMany(s => s.EnrolledCourses)
+                    .AnyAsync(c => c.ID == courseId);
+
+                if (existingEnrollment)
+                {
+                    return; // Already enrolled
+                }
+
+                // Get student and course
+                var student = await _context.Set<StudentUser>()
+                    .Include(s => s.EnrolledCourses)
+                    .FirstOrDefaultAsync(s => s.StudentId == studentId);
+
+                var course = await _context.Set<Course>()
+                    .FirstOrDefaultAsync(c => c.ID == courseId && !c.IsDeleted);
+
+                if (student == null || course == null)
+                {
+                    throw new Exception($"Student {studentId} or Course {courseId} not found");
+                }
+
+                // Enroll student in course
+                student.EnrolledCourses.Add(course);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you might want to use a proper logging framework)
+                Console.WriteLine($"Error enrolling student {studentId} in course {courseId}: {ex.Message}");
+                throw; // Re-throw to handle at higher level if needed
+            }
         }
     }
 }

@@ -87,6 +87,7 @@ namespace Infrastructure.Data
             builder.ApplyConfiguration(new CertificateConfig());
             builder.ApplyConfiguration(new CourseReviewConfig());
             builder.ApplyConfiguration(new InstructorReviewConfig());
+            builder.ApplyConfiguration(new TransactionsConfig());
         }
     }
 }

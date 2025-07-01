@@ -15,7 +15,7 @@ namespace Infrastructure.Services
         {
             _paymentRepo = genericRepo;
         }
-        public async Task AddAsync(Payment payment)
+        public async Task AddTransactionAsync(Payment payment)
         {
             await _paymentRepo.AddAsync(payment);
             await _paymentRepo.SaveAllAsync();

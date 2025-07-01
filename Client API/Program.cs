@@ -68,6 +68,10 @@ namespace Client_API
             //{
             //    options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
             //});
+
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+
             builder.Services.AddSignalR();
             builder.Services.AddSingleton<JwtSettings>(jwtOptions);
 
@@ -87,7 +91,8 @@ namespace Client_API
             builder.Services.AddHttpClient<IZoomAuthService, ZoomAuthService>();
             builder.Services.AddScoped<IZoomService, ZoomService>();
             //builder.Services.AddScoped<IStripeService, StripeService>();
-            //builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<ITransactionsService, TransactionService>();
             builder.Services.AddScoped<IReviewsService, InstructorReviewsService>();
             builder.Services.AddScoped<IJWT, JWTService>();
             //builder.Services.AddScoped<IWhatsAppService, WhatsAppService>();

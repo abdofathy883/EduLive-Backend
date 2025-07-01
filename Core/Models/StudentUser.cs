@@ -9,7 +9,7 @@ namespace Core.Models
 {
     public class StudentUser : BaseUser
     {
-        public int StudentId { get; set; }
+        public required string StudentId { get; set; }
         //[ForeignKey("Certificate")]
         public virtual List<Certificate>? Certificates { get; set; }
         public List<Course>? EnrolledCourses { get; set; }

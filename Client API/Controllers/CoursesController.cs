@@ -1,6 +1,7 @@
 ﻿using Core.DTOs;
 using Core.Interfaces;
 using Core.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Client_API.Controllers
@@ -55,7 +56,7 @@ namespace Client_API.Controllers
             return Ok(courseList);
         }
         [HttpGet("enrolled-course")]
-        public async Task<ActionResult<CourseDTO>> GetEnrolledCoursesAsync(int studentId)
+        public async Task<ActionResult<CourseDTO>> GetEnrolledCoursesAsync(string studentId)
         {
             var enrolledCourses = await courseService.GetEnrolledCoursesAsync(studentId);
             if (enrolledCourses is null) return NotFound();
@@ -68,19 +69,20 @@ namespace Client_API.Controllers
             if (ownedCourses is null) return NotFound();
             return Ok(ownedCourses);
         }
-        [HttpGet("all-categories")]
-        public async Task<ActionResult<Category>> GetAllCoursesCategoriesAsync()
-        {
-            var categories = await courseService.GetAllCategoriesAsync();
-            if (categories.Count == 0) return NotFound();
-            return Ok(categories);
-        }
+        
         [HttpGet("get-instructor/{instructorId}")]
         public async Task<ActionResult<InstructorUser>> GetInstructorByIdAsync(string instructorId)
         {
             var instructor = await auth.GetInstructorByIdAsync(instructorId);
             if (instructor is null) return NotFound();
             return Ok(instructor);
+        }
+        [HttpGet("get-course/{courseId}")]
+        public async Task<ActionResult<Course>> GetCourseByIdAsync(int courseId)
+        {
+            var course = await courseService.GetCourseByIdAsync(courseId);
+            if (course is null) return NotFound();
+            return Ok(course);
         }
     }
 }

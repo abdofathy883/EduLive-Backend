@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(E_LearningDbContext))]
-    partial class E_LearningDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250625073034_OneTimeStripePayment")]
+    partial class OneTimeStripePayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -663,7 +666,6 @@ namespace Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("CourseId")
@@ -683,9 +685,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("StudentId")
                         .IsRequired()
@@ -916,7 +917,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("InstructorId")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IntroVideoPath")
@@ -932,10 +932,8 @@ namespace Infrastructure.Migrations
                 {
                     b.HasBaseType("Core.Models.BaseUser");
 
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue("StudentUser");
                 });

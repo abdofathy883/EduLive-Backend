@@ -9,6 +9,6 @@ namespace Core.Interfaces
 {
     public interface ITransactionsService
     {
-        Task AddAsync(Payment payment);
+        Task AddTransactionAsync(Payment payment);
     }
 }

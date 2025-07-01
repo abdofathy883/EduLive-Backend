@@ -14,7 +14,7 @@ namespace Infrastructure.Data.ModelConfigrations
         public void Configure(EntityTypeBuilder<StudentUser> builder)
         {
             builder.Property(p => p.StudentId)
-                .ValueGeneratedNever();
+                .ValueGeneratedOnAdd();
 
             builder.HasMany(p => p.Certificates)
                 .WithOne(p => p.Student)

@@ -26,7 +26,7 @@ namespace Infrastructure.Services
                 Directory.CreateDirectory(uploadsFolder);
             }
             var sanitizedCourseName = string.Join("_", courseName.Split(Path.GetInvalidFileNameChars()));
-            var fileNameWithoutExt = $"{sanitizedCourseName}_{Guid.NewGuid()}";
+            var fileNameWithoutExt = $"{sanitizedCourseName}_Tahfez-Quran";
             var webpFileName = fileNameWithoutExt + ".webp";
             var webpFilePath = Path.Combine(uploadsFolder, webpFileName);
             using var webPImage = await Image.LoadAsync(image.OpenReadStream());

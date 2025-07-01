@@ -11,7 +11,7 @@ namespace Core.Interfaces
     public interface ICourse
     {
         Task<List<Course>> GetAllCoursesAsync();
-        Task<List<Course>> GetEnrolledCoursesAsync(int studentId);
+        Task<List<Course>> GetEnrolledCoursesAsync(string studentId);
         Task<List<Course>> GetOwnedCoursesAsync(string instructorId);
         Task<Course> GetCourseByIdAsync(int courseId);
         Task<Course> AddCourseAsync(CourseDTO course);
@@ -19,5 +19,6 @@ namespace Core.Interfaces
         Task<bool> DeleteCourseAsync(int courseId);
 
         Task<List<Category>> GetAllCategoriesAsync();
+        Task<Category> GetCategoryByIdAsync(int categoryId);
     }
 }
