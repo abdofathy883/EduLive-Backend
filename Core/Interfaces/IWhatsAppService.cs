@@ -8,8 +8,6 @@ namespace Core.Interfaces
 {
     public interface IWhatsAppService
     {
-        Task<bool> SendMessageAsync(string phoneNumber, string message);
-        Task<bool> SendLessonAlertAsync(int lessonId, string userId);
-        Task SendSchudledRemindersAsync();
+        Task SendLessonReminderAsync(string toPhoneNumber, string reciverName, string courseTitle, DateTime lessonDateTime, string joinURL);
     }
 }

@@ -43,7 +43,7 @@ namespace eLearning_Admin.Pages.Admins
                 PasswordHash = userManager.PasswordHasher.HashPassword(Admin, Admin.PasswordHash),
                 CreatedAt = DateTime.UtcNow,
                 IsDeleted = false,
-                Notifications = new List<Notification>(),
+                Notifications = new List<WhatsappALert>(),
                 RefreshTokens = new List<RefreshToken>()
             };
 

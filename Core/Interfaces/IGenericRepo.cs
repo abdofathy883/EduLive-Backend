@@ -15,6 +15,6 @@ namespace Core.Interfaces
         T Update(T entity);
         Task<bool> DeleteByIdAsync(object id);
         Task<bool> SaveAllAsync();
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>> include = null);
     }
 }

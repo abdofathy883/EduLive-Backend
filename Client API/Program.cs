@@ -14,6 +14,7 @@ using System.Text;
 using Microsoft.AspNetCore.Http.Json;
 using Core.Settings;
 using MailKit;
+using Infrastructure.Background;
 
 namespace Client_API
 {
@@ -48,26 +49,22 @@ namespace Client_API
                     Scheme = "Bearer"
                 });
                 c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        } });
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                        {
+                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                    } 
+                });
             });
 
             JwtSettings jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtSettings>() ?? throw new Exception("Error in JWT Settings");
-
-            //builder.Services.Configure<JsonOptions>(options =>
-            //{
-            //    options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-            //});
 
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
@@ -77,6 +74,7 @@ namespace Client_API
 
             //Settings
             builder.Services.Configure<ZoomSettings>(builder.Configuration.GetSection("ZoomSettings"));
+            builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("Twilio"));
 
             builder.Services.AddScoped<IAuth, AuthService>();
             builder.Services.AddScoped<ICourse, CourseService>();
@@ -105,6 +103,8 @@ namespace Client_API
 
             builder.Services.AddScoped<MediaUploadsService>();
 
+            builder.Services.AddHostedService<WhatsAppReminderBackgroundService>();
+
             builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
 
             builder.Services.AddAuthentication(options =>
@@ -127,7 +127,6 @@ namespace Client_API
                 };
             });
 
-            //builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddHttpClient();
 
             builder.Services.AddCors(options =>
@@ -164,10 +163,5 @@ namespace Client_API
 
             app.Run();
         }
-        //public void ConfigerWhatsAppService(IServiceCollection services)
-        //{
-        //    services.AddScoped<IWhatsAppService, WhatsAppService>();
-        //    //services.AddHostedService<whatsa>
-        //}
     }
 }

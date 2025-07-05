@@ -38,7 +38,7 @@ namespace Infrastructure.Repos
             return true;
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>> include = null)
         {
             return await dbContext.Set<T>().Where(predicate).ToListAsync();
         }
