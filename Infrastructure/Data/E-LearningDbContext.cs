@@ -21,18 +21,21 @@ namespace Infrastructure.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<LessonReport> LessonReports { get; set; }
         public DbSet<Certificate> Certificates { get; set; }
         //Reviews Tables
         public DbSet<CourseReview> CourseReviews { get; set; }
         public DbSet<InstructorReview> InstructorReviews { get; set; }
         //Zoom
-        public DbSet<ZoomUserConnection> ZoomUserConnections { get; set; }
+        public DbSet<ZoomUserAccount> ZoomUserConnections { get; set; }
+        public DbSet<ZoomMeeting> ZoomMeetings { get; set; }
+
         //Google Meet
-        public DbSet<GoogleMeetAccount> GoogleMeetAccount { get; set; }
+        public DbSet<GoogleMeetUserAccount> GoogleMeetAccount { get; set; }
         public DbSet<GoogleMeetLesson> GoogleMeetLessons { get; set; }
-        public DbSet<GoogleMeetSettings> GoogleMeetSettings { get; set; }
         // Payments
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Message> Messages { get; set; }
         //public DbSet<Notification> Notifications {  get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<ContactForm> ContactForms { get; set; }
@@ -83,11 +86,14 @@ namespace Infrastructure.Data
             builder.ApplyConfiguration(new InstructorConfig());
             builder.ApplyConfiguration(new CourseConfig());
             builder.ApplyConfiguration(new LessonConfig());
-            builder.ApplyConfiguration(new GoogleMeetSettingsConfig());
+            builder.ApplyConfiguration(new GoogleMeetLessonConfig());
+            builder.ApplyConfiguration(new ZoomLessonConfig());
             builder.ApplyConfiguration(new CertificateConfig());
             builder.ApplyConfiguration(new CourseReviewConfig());
             builder.ApplyConfiguration(new InstructorReviewConfig());
             builder.ApplyConfiguration(new TransactionsConfig());
+            builder.ApplyConfiguration(new LessonReportConfig());
+            builder.ApplyConfiguration(new MessageConfig());
         }
     }
 }

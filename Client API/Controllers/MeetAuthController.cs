@@ -38,24 +38,24 @@ namespace Client_API.Controllers
                 return BadRequest(new { error = "Authentication failed", details = ex.Message });
             }
         }
-        [HttpGet("Status/{userId}")]
-        public async Task<IActionResult> CheckConnectionStatus(string userId)
-        {
-            var isConnected = await meetAuthService.IsAccountConnectedAsync(userId);
-            return Ok(new { isConnected });
-        }
-        [HttpDelete("Disconnect/{userId}")]
-        public async Task<IActionResult> Disconnect(string userId)
-        {
-            await meetAuthService.DisconnectAccountAsync(userId);
-            return NoContent();
-        }
+        //[HttpGet("Status/{userId}")]
+        //public async Task<IActionResult> CheckConnectionStatus(string userId)
+        //{
+        //    var isConnected = await meetAuthService.IsAccountConnectedAsync(userId);
+        //    return Ok(new { isConnected });
+        //}
+        //[HttpDelete("Disconnect/{userId}")]
+        //public async Task<IActionResult> Disconnect(string userId)
+        //{
+        //    await meetAuthService.DisconnectAccountAsync(userId);
+        //    return NoContent();
+        //}
 
         // GET: api/GoogleAuth/Account/{userId}
         [HttpGet("Account/{userId}")]
         public async Task<IActionResult> GetAccount(string userId)
         {
-            var account = await meetAuthService.GetAccountByUserIdAsync(userId);
+            var account = await meetAuthService.GetUserConnectionAsync(userId);
             return Ok(account);
         }
     }

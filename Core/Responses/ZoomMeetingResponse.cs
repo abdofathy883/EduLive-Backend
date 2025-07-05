@@ -12,5 +12,7 @@ namespace Core.Responses
         public string JoinUrl { get; set; }
         public string start_url { get; set; }
         public string password { get; set; }
+        public string Start_Time { get; set; }
+        public int Duration { get; set; }
     }
 }

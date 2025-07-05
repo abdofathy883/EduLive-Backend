@@ -1,13 +1,8 @@
 ﻿using Core.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class GoogleMeetAccount: IDeletable, IAuditable
+    public class GoogleMeetUserAccount: IDeletable, IAuditable
     {
         public int Id { get; set; }
         public string GoogleUserId { get; set; }

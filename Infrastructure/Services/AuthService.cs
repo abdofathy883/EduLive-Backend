@@ -95,6 +95,7 @@ namespace Infrastructure.Services
             var roles = await userManager.GetRolesAsync(user);
             authDto.Roles = roles.ToList();
             authDto.Token = await jWT.GenerateAccessTokenAsync(user);
+            authDto.ConcurrencyStamp = user.ConcurrencyStamp;
 
             if (user.RefreshTokens.Any(t => t.IsActive))
             {
@@ -118,6 +119,7 @@ namespace Infrastructure.Services
                 authDto.IsApproved = instructor.IsApproved;
             }
             authDto.Message = "تم تسجيل الدخول بنجاح";
+            Console.WriteLine($"ConcurrencyStamp: {user.ConcurrencyStamp}");
             return authDto;
         }
 
@@ -273,23 +275,40 @@ namespace Infrastructure.Services
             {
                 throw new KeyNotFoundException("User cannot be found or has been deleted");
             }
+
+            if (!string.IsNullOrEmpty(updatedUser.ConcurrencyStamp))
+            {
+                user.ConcurrencyStamp = updatedUser.ConcurrencyStamp;
+            }
+
             user.FirstName = updatedUser.FirstName ?? user.FirstName;
             user.LastName = updatedUser.LastName ?? user.LastName;
             user.PhoneNumber = updatedUser.PhoneNumber;
-            user.Email = updatedUser.Email;
-            user.UpdatedAt = DateTime.UtcNow;
 
+            if (!string.IsNullOrWhiteSpace(updatedUser.Email) && updatedUser.Email != user.Email)
+            {
+                var changeEmailResult = await userManager.ChangeEmailAsync(user, updatedUser.Email, userId);
+                if (!changeEmailResult.Succeeded)
+                {
+                    throw new InvalidOperationException("Failed to update email: " + string.Join(", ", changeEmailResult.Errors.Select(e => e.Description)));
+                }
+            }
             //if (user is InstructorUser)
             //{
-            //    user.cv
+            //    user.
             //}
+            user.UpdatedAt = DateTime.UtcNow;
 
             var result = await userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException("Failed to update user: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
 
             var authDTO = new AuthDTO
             {
                 IsAuthenticated = true,
-                Message = "تم تحديث بياناتك بنجاح"
+                Message = "تم تحديث بياناتك بنجاح", 
             };
             return authDTO;
         }
@@ -307,7 +326,8 @@ namespace Infrastructure.Services
                 LastName = user.LastName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                DateOfBirth = user.DateOfBirth
+                DateOfBirth = user.DateOfBirth,
+                ConcurrencyStamp = user.ConcurrencyStamp
             };
             return userDTO;
         }

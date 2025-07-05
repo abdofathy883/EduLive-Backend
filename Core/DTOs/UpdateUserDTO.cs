@@ -15,5 +15,7 @@ namespace Core.DTOs
         public string? Password { get; set; }
         public string? Cv { get; set; }
         public string? IntroVideo { get; set; }
+        public string? Bio { get; set; }
+        public string? ConcurrencyStamp { get; set; }
     }
 }

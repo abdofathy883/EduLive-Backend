@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class ZoomUserConnection
+    public class ZoomUserAccount: IAuditable, IDeletable
     {
         public Guid Id { get; set; }
         public string UserId { get; set; }
@@ -17,5 +18,6 @@ namespace Core.Models
         public DateTime TokenExpiry { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

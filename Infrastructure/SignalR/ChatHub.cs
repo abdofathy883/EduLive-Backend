@@ -1,17 +1,20 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Infrastructure.SignalR
 {
     public class ChatHub : Hub
     {
-        public async Task SendMessageAsync(string user, string message)
+        private readonly IChatService chatService;
+        public ChatHub(IChatService service)
         {
-            await Clients.All.SendAsync(user, message);
+            chatService = service;
+        }
+        public async Task SendMessageAsync(string reciverId, string message)
+        {
+            var senderid = Context.UserIdentifier;
+            await chatService.SendMessageAsync(senderid, reciverId, message);
+            await Clients.User(reciverId).SendAsync("ReceiveMessage", senderid, message, DateTime.UtcNow);
         }
     }
 }

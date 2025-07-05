@@ -7,16 +7,18 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class GoogleMeetLesson: IDeletable
+    public class GoogleMeetLesson: IAuditable, IDeletable
     {
         public int Id { get; set; }
-        public string GoogleMeetId { get; set; }
-        public string JoinUrl { get; set; }
-        public string MeetingCode { get; set; }
+        public string? GoogleEventId { get; set; }          // ID of the calendar event
+        public string? GoogleMeetURL { get; set; }         // The Meet link (hangoutLink or entryPoint.uri)
+        public string? GoogleCalendarId { get; set; }       // Usually "primary" or the specific calendar used
+        public DateTime? StartTime { get; set; }            // Start time of the event
+        public int Duration { get; set; }
 
-        // Foreign key relationship
         public int LessonId { get; set; }
         public Lesson Lesson { get; set; }
         public bool IsDeleted { get; set; }
-    }
-}
+        public DateTime CreatedAt { get; set; }
+       public DateTime? UpdatedAt { get; set; }
+    }}

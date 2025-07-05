@@ -27,9 +27,9 @@ namespace Client_API.Controllers
             return Ok(result);
         }
         [HttpGet("get-zoom-meeting/{meetingId}")]
-        public async Task<ActionResult<ZoomMeetingDTO>> GetZoomMeetingById(string meetingId)
+        public async Task<ActionResult<ZoomMeetingDTO>> GetZoomMeetingById(int meetingId)
         {
-            var meeting = await zoomService.GetMeetingAsync(meetingId);
+            var meeting = await zoomService.GetMeetingByIdAsync(meetingId);
             if (meeting is null)
             {
                 return NotFound();
@@ -37,10 +37,9 @@ namespace Client_API.Controllers
             return Ok(meeting);
         }
         [HttpPut("update-zoom-meeting{meetingId}")]
-        public async Task<IActionResult> UpdateZoomMeetingAsync(string meetingId, UpdateZoomMeetingDTO updateZoomMeeting)
+        public async Task<IActionResult> UpdateZoomMeetingAsync(UpdateZoomMeetingDTO updateZoomMeeting)
         {
-            var meeting = await zoomService.GetMeetingAsync(meetingId);
-            if (meeting is null)
+            if (updateZoomMeeting is null)
             {
                 return NotFound();
             }
@@ -48,15 +47,35 @@ namespace Client_API.Controllers
             return Ok();
         }
 
-        //[HttpDelete("delete-zoom-meeting{meetingId}")]
-        //public async Task<IActionResult> DeleteZoomMeetingAsync(string meetingId)
-        //{
-        //    var meeting = await zoomService.
-        //    if (!meeting)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok();
-        //}
+        [HttpGet("get-meetings-by-course/{courseId}")]
+        public async Task<ActionResult<List<ZoomMeetingDTO>>> GetMeetingsByCourseIdAsync(int courseId)
+        {
+            var meetings = await zoomService.GetMeetingsByCourseIdAsync(courseId);
+            if (meetings is null || meetings.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(meetings);
+        }
+        [HttpGet("get-meetings-by-instructor/{instructorId}")]
+        public async Task<ActionResult<List<ZoomMeetingDTO>>> GetMeetingsByInstructorIdAsync(string instructorId)
+        {
+            var meetings = await zoomService.GetMeetingsByInstructorIdAsync(instructorId);
+            if (meetings is null || meetings.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(meetings);
+        }
+        [HttpGet("get-meetings-by-student/{studentId}")]
+        public async Task<ActionResult<List<ZoomMeetingDTO>>> GetMeetingsByStudentIdAsync(string studentId)
+        {
+            var meetings = await zoomService.GetMeetingsByStudentIdAsync(studentId);
+            if (meetings is null || meetings.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(meetings);
+        }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class CourseReview: IAuditable
+    public class CourseReview: IAuditable, IDeletable
     {
         public int CourseReviewId { get; set; }
         public string StudentId { get; set; }
@@ -18,5 +18,6 @@ namespace Core.Models
         public string Comment { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

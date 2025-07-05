@@ -17,6 +17,7 @@ namespace Core.Models
         public List<CourseReview>? CourseReviews { get; set; }
         public List<InstructorReview>? InstructorReviews { get; set; }
         public virtual List<Payment> Payments { get; set; } = new List<Payment>();
+        public List<LessonReport>? LessonReports { get; set; }
         //public List<Notification> Notifications { get; set; }
     }
 }

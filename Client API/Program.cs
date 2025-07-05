@@ -85,17 +85,21 @@ namespace Client_API
             //Google Meet Registration
             builder.Services.AddHttpClient<IGoogleMeetAuthService, GoogleMeetAuthService>();
             builder.Services.AddScoped<IGoogleMeetAuthService, GoogleMeetAuthService>();
-            builder.Services.AddScoped<IMeetService, MeetService>();
+            builder.Services.AddScoped<IGoogleMeetService, GoogleMeetService>();
             //Zoom Registration
             builder.Services.AddScoped<IZoomAuthService, ZoomAuthService>();
             builder.Services.AddHttpClient<IZoomAuthService, ZoomAuthService>();
             builder.Services.AddScoped<IZoomService, ZoomService>();
-            //builder.Services.AddScoped<IStripeService, StripeService>();
+            // Payment and Transactions
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<ITransactionsService, TransactionService>();
+            // Reviews and Ratings
+            builder.Services.AddScoped<ICourseReviews, CourseReviewsService>();
             builder.Services.AddScoped<IReviewsService, InstructorReviewsService>();
+            builder.Services.AddScoped<ILessonReport, LessonReportService>();
             builder.Services.AddScoped<IJWT, JWTService>();
             //builder.Services.AddScoped<IWhatsAppService, WhatsAppService>();
+            builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IBlogService, BlogService>();
             builder.Services.AddScoped<IContactForm, ContactFormService>();
 

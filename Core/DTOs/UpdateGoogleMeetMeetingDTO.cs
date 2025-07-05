@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Data.ModelConfigrations
+namespace Core.DTOs
 {
-    internal class MeetAccountConfig
+    public class UpdateGoogleMeetMeetingDTO
     {
     }
 }

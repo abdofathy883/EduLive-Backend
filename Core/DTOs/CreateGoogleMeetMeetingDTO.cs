@@ -6,19 +6,18 @@ using System.Threading.Tasks;
 
 namespace Core.DTOs
 {
-    public class ZoomMeetingDTO
+    public class CreateGoogleMeetMeetingDTO
     {
-        public string ZoomMeetingId { get; set; }
-        public string JoinUrl { get; set; }
-        public string StartUrl { get; set; }
-        public string Password { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
         public DateTime StartTime { get; set; }
         public int Duration { get; set; }
-        public string Topic { get; set; }
+
+        public string GoogleMeetURL { get; set; }
 
         public int LessonId { get; set; }
         public int CourseId { get; set; }
         public string InstructorId { get; set; }
-        public string StudentId { get; set; } 
+        public string StudentId { get; set; }
     }
 }

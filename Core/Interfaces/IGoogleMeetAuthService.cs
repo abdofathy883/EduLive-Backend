@@ -1,4 +1,5 @@
 ﻿using Core.DTOs;
+using Core.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,10 @@ namespace Core.Interfaces
     {
         string GetAuthorizationUrlAsync();
         Task<GoogleMeetAccountDTO> HandleAuthCallbackAsync(string code, string userId);
-        Task<GoogleMeetAccountDTO> GetAccountByUserIdAsync(string userId);
-        Task DisconnectAccountAsync(string userId);
-        Task<bool> IsAccountConnectedAsync(string userId);
+        Task<GoogleMeetAccountDTO> GetUserConnectionAsync(string userId);
         Task<string> GetAccessTokenAsync(string userId);
         Task<string> RefreshAccessTokenAsync(string userId);
-        //Task<bool> RevokeAccessAsync(string userId);
+        Task<GoogleMeetAuthResponse> GetUserInfoAsync(string accessToken);
+
     }
 }

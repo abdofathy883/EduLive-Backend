@@ -35,6 +35,10 @@ namespace Infrastructure.Data.ModelConfigrations
                 .WithOne(r => r.Instructor)
                 .HasForeignKey(r => r.InstructorId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(p => p.LessonReports)
+                .WithOne(r => r.Instructor)
+                .HasForeignKey(r => r.InstructorId);
         }
     }
 }

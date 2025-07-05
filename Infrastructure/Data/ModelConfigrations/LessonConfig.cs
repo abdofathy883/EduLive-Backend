@@ -23,29 +23,8 @@ namespace Infrastructure.Data.ModelConfigrations
             builder.Property(p => p.Description)
                 .HasMaxLength(2000);
 
-            builder.Property(p => p.Duration)
-                .IsRequired();
-
-            builder.Property(p => p.Date_Time)
-                .IsRequired();
-
             builder.Property(p => p.LessonPlatform)
                 .IsRequired();
-
-            builder.Property(p => p.GoogleMeetURL)
-                .HasMaxLength(500);
-
-            builder.Property(p => p.ZoomJoinURL)
-                .HasMaxLength(500);
-
-            builder.Property(p => p.ZoomStartUrl)
-                .HasMaxLength(500);
-
-            builder.Property(p => p.ZoomPassword)
-                .HasMaxLength(100);
-
-            builder.Property(p => p.ZoomPassword)
-                .HasMaxLength(100);
 
             // Relationships
             builder.HasOne(p => p.Course)
@@ -62,6 +41,16 @@ namespace Infrastructure.Data.ModelConfigrations
                 .WithMany(p => p.EnrolledLessons)
                 .HasForeignKey(p => p.StudentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(p => p.ZoomMeeting)
+                .WithOne(p => p.Lesson)
+                .HasForeignKey<ZoomMeeting>(p => p.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(p => p.GoogleMeetLesson)
+                .WithOne(p => p.Lesson)
+                .HasForeignKey<GoogleMeetLesson>(p => p.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

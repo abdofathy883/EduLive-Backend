@@ -19,51 +19,39 @@ namespace Infrastructure.Services
 {
     public class GoogleMeetAuthService : IGoogleMeetAuthService
     {
-        private readonly IGenericRepo<GoogleMeetAccount> repo;
+        private readonly IGenericRepo<GoogleMeetUserAccount> repo;
         private readonly IHttpClientFactory httpClient;
         private readonly ILogger<GoogleMeetAuthService> logger;
         private readonly IOptions<GoogleSettings> meetSettings;
 
-        public GoogleMeetAuthService(IGenericRepo<GoogleMeetAccount> genericRepo, IHttpClientFactory httpClientFactory, ILogger<GoogleMeetAuthService> _logger, IOptions<GoogleSettings> options)
+        public GoogleMeetAuthService(IGenericRepo<GoogleMeetUserAccount> genericRepo, 
+            IHttpClientFactory httpClientFactory, 
+            ILogger<GoogleMeetAuthService> _logger, 
+            IOptions<GoogleSettings> options)
         {
             repo = genericRepo;
             httpClient = httpClientFactory;
             logger = _logger;
             meetSettings = options;
         }
-        public async Task DisconnectAccountAsync(string userId)
-        {
-            var account = await repo.GetByIdAsync(userId);
-
-            if (account is not null)
-            {
-                await repo.DeleteByIdAsync(account.Id);
-                await repo.SaveAllAsync();
-            }
-        }
 
         public async Task<string> GetAccessTokenAsync(string userId)
         {
             var account = await repo.GetByIdAsync(userId);
-            //var account = await _context.GoogleMeetAccounts
-            //.FirstOrDefaultAsync(a => a.UserId == userId);
 
             if (account == null)
-            {
-                return null;
-            }
+                throw new InvalidOperationException("No connected Google Meet account for this user.");
 
             // Check if token needs refresh
             if (account.TokenExpiry <= DateTime.UtcNow.AddMinutes(5))
             {
-                // Refresh token
-                var refreshedToken = await RefreshAccessTokenAsync(userId);
+                return await RefreshAccessTokenAsync(userId);
             }
 
             return account.AccessToken;
         }
 
-        public async Task<GoogleMeetAccountDTO> GetAccountByUserIdAsync(string userId)
+        public async Task<GoogleMeetAccountDTO> GetUserConnectionAsync(string userId)
         {
             var account = await repo.GetByIdAsync(userId);
 
@@ -71,6 +59,8 @@ namespace Infrastructure.Services
             {
                 return new GoogleMeetAccountDTO
                 {
+                    Email = account.Email,
+                    GoogleUserId = account.GoogleUserId,
                     UserId = userId,
                     IsConnected = false
                 };
@@ -111,8 +101,8 @@ namespace Infrastructure.Services
 
         public async Task<GoogleMeetAccountDTO> HandleAuthCallbackAsync(string code, string userId)
         {
-            var tokenResponse = await ExchangeCodeForTokensAsync(code);
-            var userInfo = await GetUserInfoAsync(tokenResponse.AccessToken);
+            var Tokens = await ExchangeCodeForTokensAsync(code);
+            var userInfo = await GetUserInfoAsync(Tokens.AccessToken);
 
             var existingAccount = await repo.GetByIdAsync(userId);
 
@@ -121,22 +111,22 @@ namespace Infrastructure.Services
                 // Update existing account
                 existingAccount.GoogleUserId = userInfo.GoogleUserId;
                 existingAccount.Email = userInfo.Email;
-                existingAccount.AccessToken = tokenResponse.AccessToken;
-                existingAccount.RefreshToken = tokenResponse.RefreshToken;
-                existingAccount.TokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+                existingAccount.AccessToken = Tokens.AccessToken;
+                existingAccount.RefreshToken = Tokens.RefreshToken;
+                existingAccount.TokenExpiry = DateTime.UtcNow.AddSeconds(Tokens.ExpiresIn);
                 existingAccount.UpdatedAt = DateTime.UtcNow;
             }
             else
             {
                 // Create new account
-                existingAccount = new GoogleMeetAccount
+                existingAccount = new GoogleMeetUserAccount
                 {
                     UserId = userId.ToString(),
                     GoogleUserId = userInfo.GoogleUserId,
                     Email = userInfo.Email,
-                    AccessToken = tokenResponse.AccessToken,
-                    RefreshToken = tokenResponse.RefreshToken,
-                    TokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn),
+                    AccessToken = Tokens.AccessToken,
+                    RefreshToken = Tokens.RefreshToken,
+                    TokenExpiry = DateTime.UtcNow.AddSeconds(Tokens.ExpiresIn),
                     CreatedAt = DateTime.UtcNow,
                 };
                 await repo.AddAsync(existingAccount);
@@ -152,16 +142,6 @@ namespace Infrastructure.Services
                 GoogleUserId = existingAccount.GoogleUserId,
                 IsConnected = true
             };
-        }
-
-        public async Task<bool> IsAccountConnectedAsync(string userId)
-        {
-            var isAccountConnected = await repo.GetByIdAsync(userId);
-            if (isAccountConnected is null)
-            {
-                return false;
-            }
-            return true;
         }
 
         public async Task<string> RefreshAccessTokenAsync(string userId)
@@ -201,7 +181,7 @@ namespace Infrastructure.Services
             //await repo.Update(account);
             await repo.SaveAllAsync();
 
-            return token.RefreshToken;
+            return account.AccessToken;
         }
 
         private async Task<GoogleMeetAuthResponse> ExchangeCodeForTokensAsync(string code)
@@ -225,12 +205,10 @@ namespace Infrastructure.Services
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            var token = JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content);
-
-            return token;
+            return JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content);
         }
 
-        private async Task<GoogleMeetAuthResponse> GetUserInfoAsync(string accessToken)
+        public async Task<GoogleMeetAuthResponse> GetUserInfoAsync(string accessToken)
         {
             var http = httpClient.CreateClient();
             http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);

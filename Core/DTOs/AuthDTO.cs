@@ -28,5 +28,6 @@ namespace Core.DTOs
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiration { get; set; }
         public bool? IsApproved { get; set; }
+        public string? ConcurrencyStamp { get; set; }
     }
 }

@@ -55,7 +55,7 @@ namespace Infrastructure.Data.ModelConfigrations
 
             // Relationships
             builder.HasOne(p => p.Category)
-                .WithMany(cat => cat.Courses) // Assuming Category has a collection of Courses
+                .WithMany(cat => cat.Courses)
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 

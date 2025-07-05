@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,6 +36,11 @@ namespace Infrastructure.Repos
             entity.IsDeleted = true;
             dbSet.Update(entity);
             return true;
+        }
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await dbContext.Set<T>().Where(predicate).ToListAsync();
         }
 
         public async Task<IReadOnlyList<T>> GetAllAsync()

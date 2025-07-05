@@ -1,27 +1,19 @@
 ﻿using Core.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Models
 {
     public class ZoomMeeting: IAuditable, IDeletable
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
+        //public string Topic { get; set; }
         public string ZoomMeetingId { get; set; }
-        public string Topic { get; set; }
         public DateTime StartTime { get; set; }
         public int Duration { get; set; } // in minutes
         public string JoinUrl { get; set; }
         public string StartUrl { get; set; }
         public string Password { get; set; }
-        // add navigation properties for course and instructor
-        public Guid CourseId { get; set; }
-        //public Course Course { get; set; }
-        public Guid InstructorId { get; set; }
-        //public InstructorUser Instructor {  get; set; }
+        public int LessonId { get; set; }
+        public Lesson Lesson { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }

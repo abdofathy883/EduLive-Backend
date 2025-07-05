@@ -36,6 +36,14 @@ namespace Infrastructure.Data.ModelConfigrations
             builder.HasMany(p => p.InstructorReviews)
                 .WithOne(r => r.Student)
                 .HasForeignKey(k => k.StudentId);
+
+            builder.HasMany(p => p.Payments)
+                .WithOne(p => p.Student)
+                .HasForeignKey(k => k.StudentId);
+
+            builder.HasMany(p => p.LessonReports)
+                .WithOne(r => r.Student)
+                .HasForeignKey(k => k.StudentId);
         }
     }
 }

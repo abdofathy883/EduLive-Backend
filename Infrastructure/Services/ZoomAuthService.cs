@@ -22,13 +22,15 @@ namespace Infrastructure.Services
     {
         private readonly HttpClient httpClient;
         private readonly IOptions<ZoomSettings> options;
-        private readonly E_LearningDbContext dbContext;
+        private readonly IGenericRepo<ZoomUserAccount> zoomRepo;
 
-        public ZoomAuthService(HttpClient _httpClient, E_LearningDbContext context, IOptions<ZoomSettings> _options)
+        public ZoomAuthService(HttpClient _httpClient, 
+            IGenericRepo<ZoomUserAccount> _repo,
+            IOptions<ZoomSettings> _options)
         {
             httpClient = _httpClient;
-            dbContext = context;
             options = _options;
+            zoomRepo = _repo;
         }
         public string GetAuthorizationUrl()
         {
@@ -45,14 +47,15 @@ namespace Infrastructure.Services
 
         public async Task<ZoomUserConnectionDTO> GetUserConnectionAsync(string userId)
         {
-            var connection = await dbContext.ZoomUserConnections
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+            var connection = await zoomRepo.GetByIdAsync(userId);
 
             if (connection == null)
             {
                 return new ZoomUserConnectionDTO
                 {
                     UserId = userId,
+                    ZoomUserId = null,
+                    ZoomEmail = null,
                     IsConnected = false
                 };
             }
@@ -62,13 +65,12 @@ namespace Infrastructure.Services
             {
                 await RefreshAccessTokenAsync(userId);
                 // Reload connection after refresh
-                connection = await dbContext.ZoomUserConnections
-                    .FirstOrDefaultAsync(c => c.UserId == userId);
+                connection = await zoomRepo.GetByIdAsync(userId);
             }
 
             return new ZoomUserConnectionDTO
             {
-                Id = connection.Id,
+                //Id = connection.Id,
                 UserId = connection.UserId,
                 ZoomUserId = connection.ZoomUserId,
                 ZoomEmail = connection.ZoomEmail,
@@ -114,8 +116,7 @@ namespace Infrastructure.Services
             var userContent = await userResponse.Content.ReadAsStringAsync();
             var userData = JsonSerializer.Deserialize<ZoomUserResponse>(userContent);
 
-            var existingConnection = await dbContext.ZoomUserConnections
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+            var existingConnection = await zoomRepo.GetByIdAsync(userId);
 
             if (existingConnection != null)
             {
@@ -126,11 +127,11 @@ namespace Infrastructure.Services
                 existingConnection.TokenExpiry = DateTime.UtcNow.AddSeconds(tokenData.expires_in);
                 existingConnection.UpdatedAt = DateTime.UtcNow;
 
-                await dbContext.SaveChangesAsync();
+                await zoomRepo.SaveAllAsync();
             }
             else
             {
-                var newConnection = new ZoomUserConnection
+                var newConnection = new ZoomUserAccount
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId,
@@ -142,13 +143,13 @@ namespace Infrastructure.Services
                     CreatedAt = DateTime.UtcNow
                 };
 
-                dbContext.ZoomUserConnections.Add(newConnection);
-                await dbContext.SaveChangesAsync();
+                await zoomRepo.AddAsync(newConnection);
+                await zoomRepo.SaveAllAsync();
             }
 
             return new ZoomUserConnectionDTO
             {
-                Id = existingConnection?.Id ?? Guid.NewGuid(),
+                //Id = existingConnection?.Id ?? Guid.NewGuid(),
                 UserId = userId,
                 ZoomUserId = userData.id,
                 ZoomEmail = userData.email,
@@ -158,8 +159,7 @@ namespace Infrastructure.Services
 
         public async Task<string> RefreshAccessTokenAsync(string userId)
         {
-            var connection = await dbContext.ZoomUserConnections
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+            var connection = await zoomRepo.GetByIdAsync(userId);
 
             if (connection == null)
                 throw new ApplicationException("No Zoom connection found for user");
@@ -193,15 +193,14 @@ namespace Infrastructure.Services
             connection.TokenExpiry = DateTime.UtcNow.AddSeconds(tokenData.expires_in);
             connection.UpdatedAt = DateTime.UtcNow;
 
-            await dbContext.SaveChangesAsync();
+            await zoomRepo.SaveAllAsync();
 
             return tokenData.access_token;
         }
 
         public async Task<bool> RevokeAccessAsync(string userId)
         {
-            var connection = await dbContext.ZoomUserConnections
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+            var connection = await zoomRepo.GetByIdAsync(userId);
 
             if (connection == null) return false;
 
@@ -223,8 +222,8 @@ namespace Infrastructure.Services
                 "https://zoom.us/oauth/revoke", revokeRequest);
 
             // Remove connection from database regardless of Zoom response
-            dbContext.ZoomUserConnections.Remove(connection);
-            await dbContext.SaveChangesAsync();
+            await zoomRepo.DeleteByIdAsync(connection.Id);
+            await zoomRepo.SaveAllAsync();
 
             return response.IsSuccessStatusCode;
         }

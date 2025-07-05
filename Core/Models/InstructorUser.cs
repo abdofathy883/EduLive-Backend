@@ -23,6 +23,7 @@ namespace Core.Models
         [NotMapped]
         public IFormFile? CV { get; set; }
         public List<InstructorReview>? InstructorReviews { get; set; }
+        public List<LessonReport>? LessonReports { get; set; }
         public string? Bio { get; set; }
         public bool IsApproved { get; set; } = false;
     }
