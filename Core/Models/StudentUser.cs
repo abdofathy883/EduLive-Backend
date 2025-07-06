@@ -11,7 +11,7 @@ namespace Core.Models
     {
         public required string StudentId { get; set; }
         //[ForeignKey("Certificate")]
-        public virtual List<Certificate>? Certificates { get; set; }
+        public virtual List<CertificateIssued>? Certificates { get; set; }
         public List<Course>? EnrolledCourses { get; set; }
         public List<Lesson>? EnrolledLessons { get; set; }
         public List<CourseReview>? CourseReviews { get; set; }

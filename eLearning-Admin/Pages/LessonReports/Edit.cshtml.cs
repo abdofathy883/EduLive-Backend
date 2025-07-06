@@ -8,25 +8,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Core.Models;
 using Infrastructure.Data;
-using Infrastructure.Services;
 
-namespace eLearning_Admin.Pages.Category
+namespace eLearning_Admin.Pages.LessonReports
 {
     public class EditModel : PageModel
     {
         private readonly Infrastructure.Data.E_LearningDbContext _context;
-        private readonly MediaUploadsService uploadsService;
-        public EditModel(Infrastructure.Data.E_LearningDbContext context, MediaUploadsService uploadsService)
+
+        public EditModel(Infrastructure.Data.E_LearningDbContext context)
         {
             _context = context;
-            this.uploadsService = uploadsService;
         }
 
         [BindProperty]
-        public IFormFile? CategoryImage { get; set; }
-
-        [BindProperty]
-        public Core.Models.Category Category { get; set; } = default!;
+        public LessonReport LessonReport { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -35,15 +30,19 @@ namespace eLearning_Admin.Pages.Category
                 return NotFound();
             }
 
-            var category =  await _context.Categories.FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
+            var lessonreport =  await _context.LessonReports.FirstOrDefaultAsync(m => m.Id == id);
+            if (lessonreport == null)
             {
                 return NotFound();
             }
-            Category = category;
+            LessonReport = lessonreport;
+           ViewData["InstructorId"] = new SelectList(_context.Set<InstructorUser>(), "Id", "Id");
+           ViewData["StudentId"] = new SelectList(_context.Set<StudentUser>(), "Id", "Id");
             return Page();
         }
 
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
@@ -51,13 +50,7 @@ namespace eLearning_Admin.Pages.Category
                 return Page();
             }
 
-            if (CategoryImage != null)
-            {
-                string uploadedImageUrl = await uploadsService.UploadImage(CategoryImage, Category.Title);
-                Category.Image = uploadedImageUrl;
-            }
-
-            _context.Attach(Category).State = EntityState.Modified;
+            _context.Attach(LessonReport).State = EntityState.Modified;
 
             try
             {
@@ -65,7 +58,7 @@ namespace eLearning_Admin.Pages.Category
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(Category.Id))
+                if (!LessonReportExists(LessonReport.Id))
                 {
                     return NotFound();
                 }
@@ -78,9 +71,9 @@ namespace eLearning_Admin.Pages.Category
             return RedirectToPage("./Index");
         }
 
-        private bool CategoryExists(int id)
+        private bool LessonReportExists(int id)
         {
-            return _context.Categories.Any(e => e.Id == id);
+            return _context.LessonReports.Any(e => e.Id == id);
         }
     }
 }

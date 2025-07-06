@@ -22,7 +22,8 @@ namespace Infrastructure.Data
         public DbSet<Course> Courses { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<LessonReport> LessonReports { get; set; }
-        public DbSet<Certificate> Certificates { get; set; }
+        public DbSet<CertificateIssued> CertificateIssueds { get; set; }
+        public DbSet<CertificateTemplate> CertificateTemplates { get; set; }
         //Reviews Tables
         public DbSet<CourseReview> CourseReviews { get; set; }
         public DbSet<InstructorReview> InstructorReviews { get; set; }
@@ -88,6 +89,7 @@ namespace Infrastructure.Data
             builder.ApplyConfiguration(new GoogleMeetLessonConfig());
             builder.ApplyConfiguration(new ZoomLessonConfig());
             builder.ApplyConfiguration(new CertificateConfig());
+            builder.ApplyConfiguration(new CertificateTemplateConfig());
             builder.ApplyConfiguration(new CourseReviewConfig());
             builder.ApplyConfiguration(new InstructorReviewConfig());
             builder.ApplyConfiguration(new TransactionsConfig());

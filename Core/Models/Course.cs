@@ -27,7 +27,7 @@ namespace Core.Models
         public virtual string InstructorId { get; set; }
         public InstructorUser Instructor { get; set; }
         public string? CertificateTemplatePath { get; set; }
-        public List<Certificate> IssuedCertificates { get; set; } = new List<Certificate>();
+        public List<CertificateIssued> IssuedCertificates { get; set; } = new List<CertificateIssued>();
         public List<StudentUser> EnrolledStudents { get; set; } = new();
         public List<Lesson> Lessons { get; set; } = new();
         public List<CourseReview> CourseReviews { get; set; } = new List<CourseReview>();

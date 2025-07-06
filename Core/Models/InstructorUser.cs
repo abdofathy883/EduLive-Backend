@@ -15,7 +15,7 @@ namespace Core.Models
         public required string InstructorId { get; set; }
         public List<Lesson>? Lessons {  get; set; }
         public List<Course>? Courses {  get; set; }
-        public List<Certificate>? IssuedCertificates { get; set; }
+        public List<CertificateIssued>? IssuedCertificates { get; set; }
         public string? IntroVideoPath { get; set; }
         [NotMapped]
         public IFormFile? IntroVideo { get; set; }

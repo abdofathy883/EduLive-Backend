@@ -1,0 +1,84 @@
+﻿@page
+@model eLearning_Admin.Pages.CertificatesIssued.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].IssueDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].PdfPath)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].Template)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].Course)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].Student)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].Instructor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].CreatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].UpdatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CertificateIssued[0].IsDeleted)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.CertificateIssued) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IssueDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PdfPath)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Template.HTMLFilePath)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Course.CourseImagePath)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Student.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Instructor.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.SerialNumber">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.SerialNumber">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.SerialNumber">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

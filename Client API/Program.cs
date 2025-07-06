@@ -24,7 +24,7 @@ namespace Client_API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // DbContext Registration
             builder.Services.AddDbContext<E_LearningDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 
@@ -75,7 +75,8 @@ namespace Client_API
             //Settings
             builder.Services.Configure<ZoomSettings>(builder.Configuration.GetSection("ZoomSettings"));
             builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("Twilio"));
-
+            // --------------------------
+            // Auth Registration
             builder.Services.AddScoped<IAuth, AuthService>();
             builder.Services.AddScoped<ICourse, CourseService>();
             //Email Registration
@@ -100,6 +101,8 @@ namespace Client_API
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IBlogService, BlogService>();
             builder.Services.AddScoped<IContactForm, ContactFormService>();
+
+            builder.Services.AddScoped<ICertificateGenerationService, CertificateGenerationService>();
 
             builder.Services.AddScoped<MediaUploadsService>();
 

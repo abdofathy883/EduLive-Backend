@@ -89,5 +89,31 @@ namespace Infrastructure.Services
             return $"{baseUrl}/uploads/{pdfName}";
 
         }
+        public async Task<string> UploadHtmlTemplate(IFormFile htmlFile, string templateTitle)
+        {
+            var fileExtension = Path.GetExtension(htmlFile.FileName).ToLower();
+            if (fileExtension != ".html" && fileExtension != ".htm")
+            {
+                throw new InvalidOperationException("Only HTML files are allowed");
+            }
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "certificate-templates");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+            var sanitizedTitle = string.Join("_", templateTitle.Split(Path.GetInvalidFileNameChars()));
+            var htmlFileName = $"{sanitizedTitle}_{Guid.NewGuid()}{fileExtension}";
+            var filePath = Path.Combine(uploadsFolder, htmlFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await htmlFile.CopyToAsync(stream);
+            }
+
+            var request = contextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            return $"{baseUrl}/certificate-templates/{htmlFileName}";
+        }
     }
 }

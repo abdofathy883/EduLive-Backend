@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data.ModelConfigrations
 {
-    internal class CertificateConfig : IEntityTypeConfiguration<Certificate>
+    internal class CertificateConfig : IEntityTypeConfiguration<CertificateIssued>
     {
-        public void Configure(EntityTypeBuilder<Certificate> builder)
+        public void Configure(EntityTypeBuilder<CertificateIssued> builder)
         {
             builder.HasKey(p => p.SerialNumber);
 
@@ -24,12 +24,6 @@ namespace Infrastructure.Data.ModelConfigrations
 
             builder.Property(p => p.IssueDate)
                 .IsRequired();
-
-            builder.Property(p => p.Score)
-                .IsRequired();
-
-            builder.Property(p => p.TemplatePath)
-                .HasMaxLength(500);
 
             builder.Property(p => p.CreatedAt)
                 .IsRequired()
@@ -53,7 +47,12 @@ namespace Infrastructure.Data.ModelConfigrations
             builder.HasOne(p => p.Instructor)
                 .WithMany(p => p.IssuedCertificates)
                 .HasForeignKey(p => p.InstructorId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(p => p.Template)
+                .WithMany()
+                .HasForeignKey(p => p.TemplateId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

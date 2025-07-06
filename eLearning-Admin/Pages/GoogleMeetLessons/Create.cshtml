@@ -1,0 +1,58 @@
+﻿@page
+@model eLearning_Admin.Pages.GoogleMeetLessons.CreateModel
+
+        @{
+        ViewData["Title"] = "Create";
+        }
+        
+        <h1>Create</h1>
+        
+    <h4>GoogleMeetLesson</h4>
+    <hr />
+    <div class="row">
+    <div class="col-md-4">
+    <form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="GoogleMeetLesson.GoogleEventId" class="control-label"></label>
+                <input asp-for="GoogleMeetLesson.GoogleEventId" class="form-control" />
+                <span asp-validation-for="GoogleMeetLesson.GoogleEventId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GoogleMeetLesson.GoogleMeetURL" class="control-label"></label>
+                <input asp-for="GoogleMeetLesson.GoogleMeetURL" class="form-control" />
+                <span asp-validation-for="GoogleMeetLesson.GoogleMeetURL" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GoogleMeetLesson.GoogleCalendarId" class="control-label"></label>
+                <input asp-for="GoogleMeetLesson.GoogleCalendarId" class="form-control" />
+                <span asp-validation-for="GoogleMeetLesson.GoogleCalendarId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GoogleMeetLesson.StartTime" class="control-label"></label>
+                <input asp-for="GoogleMeetLesson.StartTime" class="form-control" />
+                <span asp-validation-for="GoogleMeetLesson.StartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GoogleMeetLesson.Duration" class="control-label"></label>
+                <input asp-for="GoogleMeetLesson.Duration" class="form-control" />
+                <span asp-validation-for="GoogleMeetLesson.Duration" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GoogleMeetLesson.LessonId" class="control-label"></label>
+                <select asp-for="GoogleMeetLesson.LessonId" class ="form-control" asp-items="ViewBag.LessonId"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

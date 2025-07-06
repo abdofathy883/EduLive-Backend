@@ -1,0 +1,66 @@
+﻿@page
+@model eLearning_Admin.Pages.LessonReports.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.LessonReport[0].MemorizedContent)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LessonReport[0].ExplainedTopics)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LessonReport[0].DiscussedValues)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LessonReport[0].Student)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LessonReport[0].Instructor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LessonReport[0].IsDeleted)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.LessonReport) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemorizedContent)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExplainedTopics)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DiscussedValues)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Student.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Instructor.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class Certificate : IAuditable
+    public class CertificateIssued : IAuditable, IDeletable
     {
         [Key]
         public required string SerialNumber { get; set; }
         public DateOnly IssueDate { get; set; }
-        public float Score { get; set; }
-        public string? TemplatePath { get; set; }
+        public string PdfPath { get; set; }
+        public int TemplateId { get; set; }
+        public CertificateTemplate Template { get; set; }
         [ForeignKey("Course")]
         public virtual int CourseId { get; set; }
         public Course Course { get; set; }
@@ -27,5 +28,6 @@ namespace Core.Models
         public InstructorUser Instructor { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

@@ -1,0 +1,63 @@
+﻿@page
+@model eLearning_Admin.Pages.ZoomLessons.CreateModel
+
+        @{
+        ViewData["Title"] = "Create";
+        }
+        
+        <h1>Create</h1>
+        
+    <h4>ZoomMeeting</h4>
+    <hr />
+    <div class="row">
+    <div class="col-md-4">
+    <form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ZoomMeeting.ZoomMeetingId" class="control-label"></label>
+                <input asp-for="ZoomMeeting.ZoomMeetingId" class="form-control" />
+                <span asp-validation-for="ZoomMeeting.ZoomMeetingId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ZoomMeeting.StartTime" class="control-label"></label>
+                <input asp-for="ZoomMeeting.StartTime" class="form-control" />
+                <span asp-validation-for="ZoomMeeting.StartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ZoomMeeting.Duration" class="control-label"></label>
+                <input asp-for="ZoomMeeting.Duration" class="form-control" />
+                <span asp-validation-for="ZoomMeeting.Duration" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ZoomMeeting.JoinUrl" class="control-label"></label>
+                <input asp-for="ZoomMeeting.JoinUrl" class="form-control" />
+                <span asp-validation-for="ZoomMeeting.JoinUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ZoomMeeting.StartUrl" class="control-label"></label>
+                <input asp-for="ZoomMeeting.StartUrl" class="form-control" />
+                <span asp-validation-for="ZoomMeeting.StartUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ZoomMeeting.Password" class="control-label"></label>
+                <input asp-for="ZoomMeeting.Password" class="form-control" />
+                <span asp-validation-for="ZoomMeeting.Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ZoomMeeting.LessonId" class="control-label"></label>
+                <select asp-for="ZoomMeeting.LessonId" class ="form-control" asp-items="ViewBag.LessonId"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

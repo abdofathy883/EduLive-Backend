@@ -7,7 +7,7 @@
 <div class="container">
     <h1>@Model.Category.Title</h1>
     <hr />
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="Category.Id" />
         <div class="form-group mb-3">
@@ -20,22 +20,27 @@
             <textarea asp-for="Category.Description" class="form-control"></textarea>
             <span asp-validation-for="Category.Description" class="text-danger"></span>
         </div>
-        <div class="form-group mb-3">
-            <label class="form-label">الصورة</label>
-            <input asp-for="Category.Image" class="form-control"/>
-            <span asp-validation-for="Category.Image" class="text-danger"></span>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">الصورة</label>
+                <input asp-for="Category.Image" type="file" class="form-control"/>
+                <span asp-validation-for="Category.Image" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label>الصورة الحالية:</label><br />
+                <img src="@Model.Category.Image" alt="Current Image" style="max-height: 150px;" />
+            </div>
         </div>
-        <div class="form-group form-check">
-            <label class="form-check-label">
-                <input class="form-check-input" asp-for="Category.IsDeleted" /> اخفاء
-            </label>
+        <div class="form-group form-check form-switch form-check-reverse mb-3">
+            <input class="form-check-input" type="checkbox" id="switchCheckReverse" asp-for="Category.IsDeleted" />
+            <label class="form-check-label" for="switchCheckReverse">اخفاء</label>
         </div>
         <div class="form-group">
             <input type="submit" value="حفظ" class="btn btn-primary" />
         </div>
-            </form>
-    <div>
-        <a asp-page="./Index">Back to List</a>
+    </form>
+    <div class="mt-2">
+        <a asp-page="./Index">العودة الى قائمة التصنيفات</a>
     </div>
 </div>
 
