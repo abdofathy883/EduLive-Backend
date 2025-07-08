@@ -57,13 +57,7 @@ namespace Infrastructure.Services
 
             if (account == null)
             {
-                return new GoogleMeetAccountDTO
-                {
-                    Email = account.Email,
-                    GoogleUserId = account.GoogleUserId,
-                    UserId = userId,
-                    IsConnected = false
-                };
+                throw new ArgumentNullException(userId, "No connected Google Meet account for this user.");
             }
 
             if (account.TokenExpiry <= DateTime.UtcNow.AddMinutes(5))
@@ -82,7 +76,7 @@ namespace Infrastructure.Services
             };
         }
 
-        public string GetAuthorizationUrlAsync()
+        public string GetAuthorizationUrl()
         {
             var clientId = meetSettings.Value.ClientId;
             var redirectUri = meetSettings.Value.RedirectUrl;

@@ -5,45 +5,21 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>جميع الحصص عبر زووم</h1>
+<a asp-page="Create" class="btn btn-primary my-3">اضافة درس جديد</a>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
+<table class="table table-stripe">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.ZoomMeeting[0].ZoomMeetingId)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].StartTime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].Duration)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].JoinUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].StartUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].Password)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].Lesson)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZoomMeeting[0].IsDeleted)
-            </th>
-            <th></th>
+            <th>وقت البداية</th>
+            <th>الحصة</th>
+            <th>المعلم</th>
+            <th>الطالب</th>
+            <th>تاريخ الانشاء</th>
+            <th>اجراء</th>
         </tr>
     </thead>
     <tbody>
@@ -56,35 +32,62 @@
                 @Html.DisplayFor(modelItem => item.StartTime)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Duration)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JoinUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Password)
+                @Html.DisplayFor(modelItem => item.Lesson)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Lesson.InstructorId)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Lesson.StudentId)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.CreatedAt)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
+                @Html.DisplayFor(modelItem => item.CreatedAt)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsDeleted)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-success">Edit</a> 
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id">
+                    حذف
+                </button>
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">تاكيد حذف الحصة</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                هل انت متاكد من حذف هذه الحصة؟
+            </div>
+            <div class="modal-footer">
+                <form method="post">
+                    <input type="hidden" id="deleteEntryId" name="deleteEntryId" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
+                    <button type="submit" class="btn btn-danger">تأكيد الحذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const entryId = button.getAttribute('data-id');
+                const input = document.getElementById('deleteEntryId');
+                input.value = entryId;
+            });
+        });
+    </script>
+}

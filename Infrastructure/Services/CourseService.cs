@@ -123,5 +123,29 @@ namespace Infrastructure.Services
             await repo.SaveAllAsync();
             return oldCourse;
         }
+
+        public async Task<List<AuthDTO>> GetStudentsByCourseIdAsync(int courseId)
+        {
+            var course = await repo.GetByIdAsync(courseId);
+            if (course == null || course.IsDeleted)
+            {
+                return new List<AuthDTO>();
+            }
+            var students = course.EnrolledStudents;
+            if (students == null)
+                return new List<AuthDTO>();
+
+            var studentDTOs = students.Select(s => new AuthDTO
+            {
+                UserId = s.StudentId,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                Email = s.Email,
+                PhoneNumber = s.PhoneNumber,
+                ConcurrencyStamp = s.ConcurrencyStamp
+            }).ToList();
+
+            return studentDTOs;
+        }
     }
 }

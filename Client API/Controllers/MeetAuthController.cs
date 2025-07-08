@@ -15,11 +15,12 @@ namespace Client_API.Controllers
             meetAuthService = _meetAuthService;
         }
         [HttpGet("Authorize")]
-        public async Task<IActionResult> GetAuthorizationUrl()
+        public IActionResult GetAuthorizationUrl()
         {
             var url = meetAuthService.GetAuthorizationUrlAsync();
             return Ok(new { url });
         }
+
         [HttpGet("Callback")]
         public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
         {
@@ -38,24 +39,23 @@ namespace Client_API.Controllers
                 return BadRequest(new { error = "Authentication failed", details = ex.Message });
             }
         }
-        //[HttpGet("Status/{userId}")]
-        //public async Task<IActionResult> CheckConnectionStatus(string userId)
-        //{
-        //    var isConnected = await meetAuthService.IsAccountConnectedAsync(userId);
-        //    return Ok(new { isConnected });
-        //}
-        //[HttpDelete("Disconnect/{userId}")]
-        //public async Task<IActionResult> Disconnect(string userId)
-        //{
-        //    await meetAuthService.DisconnectAccountAsync(userId);
-        //    return NoContent();
-        //}
+        
+        [HttpGet("Status/{userId}")]
+        public async Task<IActionResult> CheckConnectionStatus(string userId)
+        {
+            var account = await meetAuthService.GetUserConnectionAsync(userId);
+            return Ok(new { isConnected = account != null && account.IsConnected });
+        }
 
         // GET: api/GoogleAuth/Account/{userId}
         [HttpGet("Account/{userId}")]
         public async Task<IActionResult> GetAccount(string userId)
         {
             var account = await meetAuthService.GetUserConnectionAsync(userId);
+            if (account == null)
+            {
+                return NotFound();
+            }
             return Ok(account);
         }
     }

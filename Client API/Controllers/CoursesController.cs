@@ -55,7 +55,7 @@ namespace Client_API.Controllers
             if (courseList.Count == 0) return NotFound();
             return Ok(courseList);
         }
-        [HttpGet("enrolled-course")]
+        [HttpGet("enrolled-course/{studentId}")]
         public async Task<ActionResult<CourseDTO>> GetEnrolledCoursesAsync(string studentId)
         {
             var enrolledCourses = await courseService.GetEnrolledCoursesAsync(studentId);
@@ -69,7 +69,7 @@ namespace Client_API.Controllers
             if (ownedCourses is null) return NotFound();
             return Ok(ownedCourses);
         }
-        
+
         [HttpGet("get-instructor/{instructorId}")]
         public async Task<ActionResult<InstructorUser>> GetInstructorByIdAsync(string instructorId)
         {
@@ -83,6 +83,22 @@ namespace Client_API.Controllers
             var course = await courseService.GetCourseByIdAsync(courseId);
             if (course is null) return NotFound();
             return Ok(course);
+        }
+        [HttpGet("get-students-by-course/{courseId}")]
+        public async Task<ActionResult<List<AuthDTO>>> GetStudentsByCourseIdAsync(int courseId)
+        {
+            var course = await courseService.GetCourseByIdAsync(courseId);
+            if (course is null) return NotFound();
+
+            var students = course.EnrolledStudents.Select(s => new AuthDTO
+            {
+                UserId = s.StudentId,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                Email = s.Email,
+                PhoneNumber = s.PhoneNumber,
+            }).ToList();
+            return Ok(students);
         }
     }
 }

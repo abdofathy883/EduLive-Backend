@@ -79,6 +79,8 @@ namespace Infrastructure.Services
 
             };
 
+            await LessonRepo.AddAsync(NewLesson);
+
             var newMeeting = new GoogleMeetLesson
             {
                 LessonId = NewLesson.LessonId,
@@ -95,8 +97,8 @@ namespace Infrastructure.Services
             return new GoogleMeetMeetingDTO
             {
                 Topic = NewLesson.Title,
-                GoogleEventId = newMeeting.GoogleEventId,
-                GoogleMeetURL = newMeeting.GoogleMeetURL,
+                GoogleEventId = newMeeting.GoogleEventId ?? string.Empty,
+                GoogleMeetURL = newMeeting.GoogleMeetURL ?? string.Empty,
                 StartTime = newMeeting.StartTime ?? default,
                 Duration = newMeeting.Duration,
             };
@@ -105,18 +107,21 @@ namespace Infrastructure.Services
         public async Task<GoogleMeetMeetingDTO> GetMeetingByIdAsync(int meetingId)
         {
             var lesson = await LessonRepo.GetByIdAsync(meetingId);
-            var MeetLesson = await MeetRepo.GetByIdAsync(lesson.ZoomMeetingId);
 
-            if (lesson == null)
+            if (lesson == null || lesson.GoogleMeetId == null)
                 throw new ArgumentException("Zoom meeting not found");
+
+            var MeetLesson = await MeetRepo.GetByIdAsync(lesson.GoogleMeetId);
+            if (MeetLesson == null)
+                throw new ArgumentException("Google Meet lesson not found");
 
             return new GoogleMeetMeetingDTO
             {
-                GoogleEventId = MeetLesson.GoogleEventId,
+                GoogleEventId = MeetLesson.GoogleEventId ?? string.Empty,
                 Topic = lesson.Title,
                 StartTime = MeetLesson.StartTime ?? default,
                 Duration = MeetLesson.Duration,
-                GoogleMeetUrl = MeetLesson.GoogleMeetURL,
+                GoogleMeetUrl = MeetLesson.GoogleMeetURL ?? string.Empty,
                 CourseId = lesson.CourseId,
                 InstructorId = lesson.InstructorId,
                 StudentId = lesson.StudentId,
@@ -129,7 +134,7 @@ namespace Infrastructure.Services
             var GoogleMeetings = await LessonRepo.FindAsync(m => m.LessonPlatform == Core.Enums.LessonPlatform.GoogleMeet);
             return GoogleMeetings
                 .Where(m => m.CourseId == courseId && !m.IsDeleted && m.GoogleMeetLesson != null)
-                .Select(MapLessonToZoomDto)
+                .Select(MapLessonToMeetDto)
                 .ToList();
         }
 
@@ -138,7 +143,7 @@ namespace Infrastructure.Services
             var GoogleMeetings = await LessonRepo.FindAsync(m => m.LessonPlatform == Core.Enums.LessonPlatform.GoogleMeet);
             return GoogleMeetings
                 .Where(m => m.InstructorId == instructorId && !m.IsDeleted && m.GoogleMeetLesson != null)
-                .Select(MapLessonToZoomDto)
+                .Select(MapLessonToMeetDto)
                 .ToList();
         }
 
@@ -147,7 +152,7 @@ namespace Infrastructure.Services
             var GoogleMeetings = await LessonRepo.FindAsync(m => m.LessonPlatform == Core.Enums.LessonPlatform.GoogleMeet);
             return GoogleMeetings
                 .Where(m => m.StudentId == studentId && !m.IsDeleted && m.GoogleMeetLesson != null)
-                .Select(MapLessonToZoomDto)
+                .Select(MapLessonToMeetDto)
                 .ToList();
         }
 
@@ -156,16 +161,16 @@ namespace Infrastructure.Services
             throw new NotImplementedException();
         }
 
-        private static GoogleMeetMeetingDTO MapLessonToZoomDto(Lesson m)
+        private static GoogleMeetMeetingDTO MapLessonToMeetDto(Lesson m)
         {
             return new GoogleMeetMeetingDTO
             {
                 LessonId = m.LessonId,
-                GoogleEventId = m.GoogleMeetLesson?.GoogleEventId,
+                GoogleEventId = m.GoogleMeetLesson?.GoogleEventId ?? string.Empty,
                 Topic = m.Title,
                 StartTime = m.GoogleMeetLesson?.StartTime ?? default,
                 Duration = m.GoogleMeetLesson?.Duration ?? 0,
-                GoogleMeetURL = m.GoogleMeetLesson?.GoogleMeetURL,
+                GoogleMeetURL = m.GoogleMeetLesson?.GoogleMeetURL ?? string.Empty,
                 CourseId = m.CourseId,
                 InstructorId = m.InstructorId,
                 StudentId = m.StudentId
