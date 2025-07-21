@@ -36,6 +36,9 @@ namespace Infrastructure.Services
         }
         public async Task<ZoomMeetingDTO> CreateMeetingsAsync(CreateZoomMeetingDTO zoomMeetingDTO)
         {
+            if (zoomMeetingDTO == null)
+                throw new ArgumentNullException(nameof(zoomMeetingDTO));
+
             var userId = zoomMeetingDTO.InstructorId;
             var accessToken = await zoomAuthService.RefreshAccessTokenAsync(userId);
 
@@ -73,7 +76,8 @@ namespace Infrastructure.Services
             response.EnsureSuccessStatusCode();
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            var ZoomApiResponse = JsonSerializer.Deserialize<ZoomMeetingResponse>(responseContent);
+            var ZoomApiResponse = JsonSerializer.Deserialize<ZoomMeetingResponse>(responseContent)
+                ?? throw new InvalidOperationException("Failed to deserialize Zoom meeting response");
 
             var NewLesson = new Lesson
             {
@@ -103,56 +107,44 @@ namespace Infrastructure.Services
             await ZoomRepo.AddAsync(NewZoomMeeting);
             await ZoomRepo.SaveAllAsync();
 
-            return new ZoomMeetingDTO
-            {
-                ZoomMeetingId = NewZoomMeeting.Id.ToString(),
-                StartTime = NewZoomMeeting.StartTime,
-                Duration = NewZoomMeeting.Duration,
-                JoinUrl = NewZoomMeeting.JoinUrl,
-                StartUrl = NewZoomMeeting.StartUrl,
-                Password = NewZoomMeeting.Password,
-
-                Topic = NewLesson.Title,
-                CourseId = NewLesson.CourseId,
-                InstructorId = NewLesson.InstructorId,
-                StudentId = NewLesson.StudentId,
-                LessonId = NewLesson.LessonId
-            };
+            return MapLessonToZoomDto(NewLesson);
         }
 
         public async Task<ZoomMeetingDTO> GetMeetingByIdAsync(int meetingId)
         {
-            var lesson = await LessonRepo.GetByIdAsync(meetingId);
-            var ZoomLesson = await ZoomRepo.GetByIdAsync(lesson.ZoomMeetingId);
+            var lesson = await LessonRepo.GetByIdAsync(meetingId)
+                ?? throw new ArgumentException("Zoom meeting not found");
+            if (lesson.LessonPlatform != LessonPlatform.Zoom)
+                throw new ArgumentException("Lesson is not a Zoom meeting");
 
-            if (lesson == null)
-                throw new ArgumentException("Zoom meeting not found");
+            if (lesson.IsDeleted)
+                throw new ArgumentException("This lesson has been deleted");
 
-            return new ZoomMeetingDTO
-            {
-                ZoomMeetingId = ZoomLesson.ZoomMeetingId,
-                Topic = lesson.Title,
-                StartTime = ZoomLesson.StartTime,
-                Duration = ZoomLesson.Duration,
-                JoinUrl = ZoomLesson.JoinUrl,
-                StartUrl = ZoomLesson.StartUrl,
-                Password = ZoomLesson.Password,
-                CourseId = lesson.CourseId,
-                InstructorId = lesson.InstructorId,
-                StudentId = lesson.StudentId,
-                LessonId = lesson.LessonId
-            };
+            if (lesson.ZoomMeetingId == null)
+                throw new ArgumentException("This lesson does not have a Zoom meeting associated with it");
+
+            var ZoomLesson = await ZoomRepo.GetByIdAsync(lesson.ZoomMeetingId)
+                ?? throw new ArgumentException("Zoom meeting not found for this lesson");
+
+            return MapLessonToZoomDto(lesson);
         }
 
         public async Task UpdateMeetingAsync(UpdateZoomMeetingDTO zoomMeetingDTO)
         {
-            var ZoomLesson = await LessonRepo.GetByIdAsync(zoomMeetingDTO.LessonId);
-            if (ZoomLesson == null)
-                throw new ArgumentException("Lesson not found");
+            var ZoomLesson = await LessonRepo.GetByIdAsync(zoomMeetingDTO.LessonId)
+                ?? throw new ArgumentException("Lesson not found");
 
-            var ZoomMeeting = await ZoomRepo.GetByIdAsync(ZoomLesson.ZoomMeetingId);
-            if (ZoomMeeting == null)
-                throw new ArgumentException("Zoom meeting not found");
+            if (ZoomLesson.LessonPlatform != LessonPlatform.Zoom)
+                throw new ArgumentException("This lesson is not a Zoom meeting");
+
+            if (ZoomLesson.IsDeleted)
+                throw new ArgumentException("This lesson has been deleted");
+
+            if (ZoomLesson.ZoomMeetingId == null)
+                throw new ArgumentException("This lesson does not have a Zoom meeting associated with it");
+
+            var ZoomMeeting = await ZoomRepo.GetByIdAsync(ZoomLesson.ZoomMeetingId)
+                ?? throw new ArgumentException("Zoom meeting not found");
 
             var accessToken = await zoomAuthService.RefreshAccessTokenAsync(ZoomLesson.InstructorId);
             httpClient.DefaultRequestHeaders.Authorization =
@@ -214,13 +206,13 @@ namespace Infrastructure.Services
             return new ZoomMeetingDTO
             {
                 LessonId = m.LessonId,
-                ZoomMeetingId = m.ZoomMeeting?.ZoomMeetingId,
+                ZoomMeetingId = m.ZoomMeeting.ZoomMeetingId,
                 Topic = m.Title,
                 StartTime = m.ZoomMeeting?.StartTime ?? default,
                 Duration = m.ZoomMeeting?.Duration ?? 0,
-                JoinUrl = m.ZoomMeeting?.JoinUrl,
-                StartUrl = m.ZoomMeeting?.StartUrl,
-                Password = m.ZoomMeeting?.Password,
+                JoinUrl = m.ZoomMeeting.JoinUrl,
+                StartUrl = m.ZoomMeeting.StartUrl,
+                Password = m.ZoomMeeting.Password,
                 CourseId = m.CourseId,
                 InstructorId = m.InstructorId,
                 StudentId = m.StudentId

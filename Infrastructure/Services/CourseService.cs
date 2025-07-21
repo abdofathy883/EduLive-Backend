@@ -13,21 +13,24 @@ namespace Infrastructure.Services
 {
     public class CourseService : ICourse
     {
-        private readonly E_LearningDbContext dbContext;
         private readonly IGenericRepo<Course> repo;
         private readonly MediaUploadsService uploadsService;
         private readonly IGenericRepo<Category> catRepo;
-        private readonly IGenericRepo<InstructorUser> instructorRepo;
-        public CourseService(E_LearningDbContext _context, IGenericRepo<Course> repo, MediaUploadsService _uploadsService, IGenericRepo<Category> catRepo, IGenericRepo<InstructorUser> instructorRepo)
+        public CourseService(
+            IGenericRepo<Course> repo, 
+            MediaUploadsService _uploadsService, 
+            IGenericRepo<Category> catRepo
+            )
         {
-            dbContext = _context;
             this.repo = repo;
             uploadsService = _uploadsService;
             this.catRepo = catRepo;
-            this.instructorRepo = instructorRepo;
         }
         public async Task<Course> AddCourseAsync(CourseDTO course)
         {
+            if (course is null)
+                throw new ArgumentNullException(nameof(course), "Course cannot be null");
+
             var courseImage = await uploadsService.UploadImage(course.CourseImage, course.Title);
             var newCourse = new Course
             {
@@ -47,8 +50,9 @@ namespace Infrastructure.Services
 
         public async Task<bool> DeleteCourseAsync(int courseId)
         {
-            var course = await repo.GetByIdAsync(courseId);
-            if (course is null) return false;
+            var course = await repo.GetByIdAsync(courseId)
+                ?? throw new KeyNotFoundException("Course not found or has been deleted");
+            
             course.IsDeleted = true;
             repo.Update(course);
             return await repo.SaveAllAsync();
@@ -56,59 +60,64 @@ namespace Infrastructure.Services
 
         public async Task<List<Category>> GetAllCategoriesAsync()
         {
-            var categories = await catRepo.GetAllAsync();
+            var categories = await catRepo.FindAsync(c => !c.IsDeleted)
+                ?? throw new KeyNotFoundException("No categories found");
+
             return (List<Category>)categories;
         }
 
         public async Task<List<Course>> GetAllCoursesAsync()
         {
-            var courses = await repo.GetAllAsync();
+            var courses = await repo.FindAsync(c => !c.IsDeleted)
+                ?? throw new KeyNotFoundException("No courses found");
+
             return (List<Course>)courses;
         }
 
-        public Task<Category> GetCategoryByIdAsync(int categoryId)
+        public async Task<Category> GetCategoryByIdAsync(int categoryId)
         {
-            var category = catRepo.GetByIdAsync(categoryId);
-            if (category is null || category.Result.IsDeleted)
-            {
-                return Task.FromResult<Category>(null);
-            }
+            var category = await catRepo.GetByIdAsync(categoryId)
+                ?? throw new KeyNotFoundException("Category not found or has been deleted");
+            if (category.IsDeleted)
+                throw new KeyNotFoundException("Category has been deleted");
+
             return category;
         }
 
         public async Task<Course> GetCourseByIdAsync(int courseId)
         {
-            var course = await repo.GetByIdAsync(courseId);
-            if (course is null || course.IsDeleted)
-            {
-                course = null;
-            }
+            var course = await repo.GetByIdAsync(courseId)
+                ?? throw new KeyNotFoundException("Course not found or has been deleted");
+            
+            if (course.IsDeleted)
+                throw new KeyNotFoundException("Course has been deleted");
+
             return course;
         }
 
         public async Task<List<Course>> GetEnrolledCoursesAsync(string studentId)
         {
-            var courses = await repo.GetAllAsync();
-            var studentCourses = courses
-                .Where(c => c.EnrolledStudents != null && c.EnrolledStudents.Any(s => s.StudentId == studentId))
-                .ToList();
-            return studentCourses;
+            var courses = await repo.FindAsync(c => !c.IsDeleted && c.EnrolledStudents.Any(s => s.StudentId == studentId))
+                ?? throw new KeyNotFoundException("No enrolled courses found for this student");
+            
+            return (List<Course>)courses;
         }
 
         public async Task<List<Course>> GetOwnedCoursesAsync(string instructorId)
         {
-            var courses = await repo.GetAllAsync();
-            var instructorCourses = courses.Where(c => c.InstructorId == instructorId.ToString()).ToList();
-            return instructorCourses;
+            var courses = await repo.FindAsync(courses => !courses.IsDeleted && courses.InstructorId == instructorId)
+                ?? throw new KeyNotFoundException("No owned courses found for this instructor");
+
+            return (List<Course>)courses;
         }
 
         public async Task<Course> UpdateCourseAsync(int oldCourseId, CourseDTO newCourse)
         {
-            var oldCourse = await repo.GetByIdAsync(oldCourseId);
-            if (oldCourse is null || oldCourse.IsDeleted)
-            {
-                throw new KeyNotFoundException("Course not found or has been deleted");
-            }
+            var oldCourse = await repo.GetByIdAsync(oldCourseId)
+                ?? throw new KeyNotFoundException("Course not found or has been deleted");
+            if (oldCourse.IsDeleted)
+                throw new KeyNotFoundException("Course has been deleted");
+
             oldCourse.Title = newCourse.Title;
             oldCourse.Description = newCourse.Description;
             oldCourse.NuOfLessons = newCourse.NuOfLessons;
@@ -126,14 +135,14 @@ namespace Infrastructure.Services
 
         public async Task<List<AuthDTO>> GetStudentsByCourseIdAsync(int courseId)
         {
-            var course = await repo.GetByIdAsync(courseId);
-            if (course == null || course.IsDeleted)
-            {
-                return new List<AuthDTO>();
-            }
-            var students = course.EnrolledStudents;
-            if (students == null)
-                return new List<AuthDTO>();
+            var course = await repo.GetByIdAsync(courseId)
+                ?? throw new KeyNotFoundException("Course not found or has been deleted");
+
+            if (course.IsDeleted)
+                throw new KeyNotFoundException("Course has been deleted");
+
+            var students = course.EnrolledStudents
+                ?? throw new KeyNotFoundException("No students enrolled in this course");
 
             var studentDTOs = students.Select(s => new AuthDTO
             {

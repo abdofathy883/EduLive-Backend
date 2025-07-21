@@ -11,10 +11,9 @@ using Microsoft.AspNetCore.Identity;
 using Infrastructure.Repos;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Http.Json;
 using Core.Settings;
-using MailKit;
 using Infrastructure.Background;
+using Serilog;
 
 namespace Client_API
 {
@@ -97,7 +96,7 @@ namespace Client_API
             builder.Services.AddScoped<IReviewsService, InstructorReviewsService>();
             builder.Services.AddScoped<ILessonReport, LessonReportService>();
             builder.Services.AddScoped<IJWT, JWTService>();
-            //builder.Services.AddScoped<IWhatsAppService, WhatsAppService>();
+
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IBlogService, BlogService>();
             builder.Services.AddScoped<IContactForm, ContactFormService>();
@@ -130,13 +129,22 @@ namespace Client_API
                 };
             });
 
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
+
             builder.Services.AddHttpClient();
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", policy =>
+                options.AddPolicy("AllowProductionDomain", policy =>
                 {
-                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                    policy.WithOrigins("https://tahfezquran.com")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
                 });
             });
 
@@ -150,12 +158,12 @@ namespace Client_API
                 app.MapOpenApi();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Learning API v1"));
+                app.UseDeveloperExceptionPage();
             }
 
-            app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowAll");
+            app.UseCors("AllowProductionDomain");
             app.UseAuthentication();
             app.UseAuthorization();
 

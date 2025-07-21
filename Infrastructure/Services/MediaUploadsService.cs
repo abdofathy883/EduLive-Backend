@@ -1,12 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -22,9 +16,8 @@ namespace Infrastructure.Services
             var originalExtension = Path.GetExtension(image.FileName).ToLower();
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
             if (!Directory.Exists(uploadsFolder))
-            {
                 Directory.CreateDirectory(uploadsFolder);
-            }
+
             var sanitizedCourseName = string.Join("_", courseName.Split(Path.GetInvalidFileNameChars()));
             var fileNameWithoutExt = $"{sanitizedCourseName}_Tahfez-Quran";
             var webpFileName = fileNameWithoutExt + ".webp";

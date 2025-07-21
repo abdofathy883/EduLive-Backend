@@ -3,18 +3,10 @@ using Core.Interfaces;
 using Core.Models;
 using Core.Responses;
 using Core.Settings;
-using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Stripe.TestHelpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -37,35 +29,25 @@ namespace Infrastructure.Services
             var redirectUrl = options.Value.RedirectUrl;
             var clientId = options.Value.ClientId;
 
-            var authUrl = $"https://zoom.us/oauth/authorize" +
+            return $"https://zoom.us/oauth/authorize" +
                       $"?response_type=code" +
                       $"&client_id={clientId}" +
                       $"&redirect_uri={Uri.EscapeDataString(redirectUrl)}";
 
-            return authUrl;
         }
 
         public async Task<ZoomUserConnectionDTO> GetUserConnectionAsync(string userId)
         {
-            var connection = await zoomRepo.GetByIdAsync(userId);
-
-            if (connection == null)
-            {
-                return new ZoomUserConnectionDTO
-                {
-                    UserId = userId,
-                    ZoomUserId = null,
-                    ZoomEmail = null,
-                    IsConnected = false
-                };
-            }
+            var connection = await zoomRepo.GetByIdAsync(userId)
+                ?? throw new ArgumentNullException(nameof(userId), "No connected Zoom account for this user.");
 
             // Check if token is expired and needs refresh
             if (connection.TokenExpiry <= DateTime.UtcNow.AddMinutes(5))
             {
                 await RefreshAccessTokenAsync(userId);
                 // Reload connection after refresh
-                connection = await zoomRepo.GetByIdAsync(userId);
+                connection = await zoomRepo.GetByIdAsync(userId)
+                    ?? throw new InvalidOperationException($"Failed to refresh access token for user: {userId}");
             }
 
             return new ZoomUserConnectionDTO
@@ -103,7 +85,8 @@ namespace Infrastructure.Services
             tokenResponse.EnsureSuccessStatusCode();
 
             var tokenContent = await tokenResponse.Content.ReadAsStringAsync();
-            var tokenData = JsonSerializer.Deserialize<ZoomTokenResponse>(tokenContent);
+            var tokenData = JsonSerializer.Deserialize<ZoomTokenResponse>(tokenContent)
+                ?? throw new InvalidOperationException("Failed to deserialize token response");
 
             // Get user info
             httpClient.DefaultRequestHeaders.Clear();
@@ -114,7 +97,8 @@ namespace Infrastructure.Services
             userResponse.EnsureSuccessStatusCode();
 
             var userContent = await userResponse.Content.ReadAsStringAsync();
-            var userData = JsonSerializer.Deserialize<ZoomUserResponse>(userContent);
+            var userData = JsonSerializer.Deserialize<ZoomUserResponse>(userContent)
+                ?? throw new InvalidOperationException("Failed to deserialize user info response");
 
             var existingConnection = await zoomRepo.GetByIdAsync(userId);
 
@@ -149,7 +133,6 @@ namespace Infrastructure.Services
 
             return new ZoomUserConnectionDTO
             {
-                //Id = existingConnection?.Id ?? Guid.NewGuid(),
                 UserId = userId,
                 ZoomUserId = userData.id,
                 ZoomEmail = userData.email,
@@ -159,10 +142,8 @@ namespace Infrastructure.Services
 
         public async Task<string> RefreshAccessTokenAsync(string userId)
         {
-            var connection = await zoomRepo.GetByIdAsync(userId);
-
-            if (connection == null)
-                throw new ApplicationException("No Zoom connection found for user");
+            var connection = await zoomRepo.GetByIdAsync(userId)
+                ?? throw new ApplicationException("No Zoom connection found for user");
 
             var clientId = options.Value.ClientId;
             var clientSecret = options.Value.ClientSecret;
@@ -185,7 +166,8 @@ namespace Infrastructure.Services
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            var tokenData = JsonSerializer.Deserialize<ZoomTokenResponse>(content);
+            var tokenData = JsonSerializer.Deserialize<ZoomTokenResponse>(content)
+                ?? throw new InvalidOperationException("Failed to deserialize token response");
 
             // Update stored tokens
             connection.AccessToken = tokenData.access_token;
@@ -200,9 +182,8 @@ namespace Infrastructure.Services
 
         public async Task<bool> RevokeAccessAsync(string userId)
         {
-            var connection = await zoomRepo.GetByIdAsync(userId);
-
-            if (connection == null) return false;
+            var connection = await zoomRepo.GetByIdAsync(userId)
+                ?? throw new ArgumentNullException(nameof(userId), "No connected Zoom account for this user.");
 
             var clientId = options.Value.ClientId;
             var clientSecret = options.Value.ClientSecret;

@@ -2,14 +2,9 @@
 using Core.Interfaces;
 using Core.Models;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -35,6 +30,9 @@ namespace Infrastructure.Services
 
         public async Task<GoogleMeetMeetingDTO> CreateMeetingAsync(CreateGoogleMeetMeetingDTO request)
         {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
             var accessToken = await authService.GetAccessTokenAsync(request.InstructorId);
 
             var client = httpClient.CreateClient();
@@ -80,6 +78,7 @@ namespace Infrastructure.Services
             };
 
             await LessonRepo.AddAsync(NewLesson);
+            await LessonRepo.SaveAllAsync();
 
             var newMeeting = new GoogleMeetLesson
             {
@@ -94,39 +93,24 @@ namespace Infrastructure.Services
             await MeetRepo.AddAsync(newMeeting);
             await MeetRepo.SaveAllAsync();
 
-            return new GoogleMeetMeetingDTO
-            {
-                Topic = NewLesson.Title,
-                GoogleEventId = newMeeting.GoogleEventId ?? string.Empty,
-                GoogleMeetURL = newMeeting.GoogleMeetURL ?? string.Empty,
-                StartTime = newMeeting.StartTime ?? default,
-                Duration = newMeeting.Duration,
-            };
+            return MapLessonToMeetDto(NewLesson);
         }
 
         public async Task<GoogleMeetMeetingDTO> GetMeetingByIdAsync(int meetingId)
         {
-            var lesson = await LessonRepo.GetByIdAsync(meetingId);
+            if (meetingId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(meetingId), "Meeting ID must be greater than zero");
 
-            if (lesson == null || lesson.GoogleMeetId == null)
-                throw new ArgumentException("Zoom meeting not found");
+            var lesson = await LessonRepo.GetByIdAsync(meetingId)
+                ?? throw new ArgumentException("Lesson not found for the given meeting ID");
 
-            var MeetLesson = await MeetRepo.GetByIdAsync(lesson.GoogleMeetId);
-            if (MeetLesson == null)
-                throw new ArgumentException("Google Meet lesson not found");
+            if (lesson.GoogleMeetId == null)
+                throw new ArgumentException("This lesson is not a Google Meet lesson");
 
-            return new GoogleMeetMeetingDTO
-            {
-                GoogleEventId = MeetLesson.GoogleEventId ?? string.Empty,
-                Topic = lesson.Title,
-                StartTime = MeetLesson.StartTime ?? default,
-                Duration = MeetLesson.Duration,
-                GoogleMeetUrl = MeetLesson.GoogleMeetURL ?? string.Empty,
-                CourseId = lesson.CourseId,
-                InstructorId = lesson.InstructorId,
-                StudentId = lesson.StudentId,
-                LessonId = lesson.LessonId
-            };
+            var MeetLesson = await MeetRepo.GetByIdAsync(lesson.GoogleMeetId)
+                ?? throw new ArgumentException("Google Meet lesson not found");
+
+            return MapLessonToMeetDto(lesson);
         }
 
         public async Task<List<GoogleMeetMeetingDTO>> GetMeetingsByCourseIdAsync(int courseId)

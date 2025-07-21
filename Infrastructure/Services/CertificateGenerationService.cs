@@ -34,18 +34,19 @@ namespace Infrastructure.Services
             {
                 throw new ArgumentNullException("Insuffecient Data");
             }
-            var course = await courseRepo.GetByIdAsync(courseId);
-            var template = await certificateTemplateRepo.GetByIdAsync(templateId);
-            var student = await userRepo.FindByIdAsync(studentId);
-            var instructor = await userRepo.FindByIdAsync(instructorId);
+            var course = await courseRepo.GetByIdAsync(courseId)
+                ?? throw new KeyNotFoundException("Course not found.");
 
-            if (course == null || template == null || student == null || instructor == null)
-            {
-                throw new ArgumentException("Invalid course, template, student, or instructor ID.");
-            }
+            var template = await certificateTemplateRepo.GetByIdAsync(templateId)
+                ?? throw new KeyNotFoundException("Certificate template not found.");
 
-            //if (!course.InstructorId.Any(i => i. == instructorId))
-            //    throw new UnauthorizedAccessException("Instructor not assigned to this course.");
+            var student = await userRepo.FindByIdAsync(studentId)
+                ?? throw new KeyNotFoundException("Student not found.");
+
+            var instructor = await userRepo.FindByIdAsync(instructorId)
+                ?? throw new KeyNotFoundException("Instructor not found.");
+
+            
             if (!course.EnrolledStudents.Any(s => s.Id == studentId))
                 throw new InvalidOperationException("Student not enrolled in this course.");
 
@@ -98,11 +99,14 @@ namespace Infrastructure.Services
 
         public async Task<byte[]> GetCertificatePdfBytesAsync(string serialNumber)
         {
-            var cert = await certificateIssuedRepo.GetByIdAsync(serialNumber);
-            if (cert == null || cert.IsDeleted)
-                throw new KeyNotFoundException("Certificate not found");
+            var cert = await certificateIssuedRepo.GetByIdAsync(serialNumber)
+                ?? throw new KeyNotFoundException("Certificate not found.");
+
+            if (cert.IsDeleted)
+                throw new KeyNotFoundException("Certificate is Deleted");
 
             var path = Path.Combine(webHostEnvironment.WebRootPath, cert.PdfPath);
+
             if (!File.Exists(path))
                 throw new FileNotFoundException("PDF file not found.");
 

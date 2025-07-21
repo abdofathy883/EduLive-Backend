@@ -1,11 +1,6 @@
 ﻿using Core.Interfaces;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Background
 {
@@ -53,7 +48,7 @@ namespace Infrastructure.Background
                 else if (meeting is GoogleMeetLesson gm)
                 {
                     startTime = gm.StartTime ?? default;
-                    joinUrl = gm.GoogleMeetURL;
+                    joinUrl = gm.GoogleMeetURL ?? string.Empty;
                 }
                 else continue;
 

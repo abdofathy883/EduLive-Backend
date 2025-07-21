@@ -1,24 +1,35 @@
-﻿{
-  "$schema": "https://json.schemastore.org/launchsettings.json",
+{
   "profiles": {
     "http": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:5153",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "JWT__Key": "e91471fec1c34c37b48574df34112b44",
+        "ZoomSettings__ClientId": "NiF1dzv0T06WWmoPRFbBXQ",
+        "ZoomSettings__ClientSecret": "bndw79N0nsGLYomf2kOwNYoENzUwK2jH",
+        "MailSettings__fromEmail": "abdofathy883@gmail.com",
+        "MailSettings__appPassword": "fapegdtvanixxjox",
+        "Stripe__SecretKey": "sk_test_51RLJh9QdtujEkXDTmTEE70BRqzWDmxoIUSzYgnr6aCHgNjmpqys6Car4dMdfwgZewL6TYwQcbZwhHn41ImHtAx8Y00SmyFsmhX",
+        "Stripe__WebhookSecret": "whsec_e75fdc4427cd924fa0a61d322e3d8cc00d3ff4015eec37488c09d4f5c377519d",
+        "Twilio__AccountSid": "ACd0b2c1f8e4a3b5c6d7e8f9a0b1c2d3e4",
+        "Twilio__AuthToken": "AuthToken",
+        "Twilio_FromPhoneNumber": "+201028128912",
+        "GoogleSettings__ClientId": "clientId",
+        "GoogleSettings__ClientSecret": "secret"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5153"
     },
     "https": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7090;http://localhost:5153",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7090;http://localhost:5153"
     }
-  }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json"
 }

@@ -1,12 +1,7 @@
 ﻿using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repos
 {
@@ -28,17 +23,15 @@ namespace Infrastructure.Repos
 
         public async Task<bool> DeleteByIdAsync(object id)
         {
-            var entity = await GetByIdAsync(id);
-            if (entity == null)
-            {
-                return false;
-            }
+            var entity = await GetByIdAsync(id)
+                ?? throw new ArgumentNullException(nameof(id), "Entity not found for deletion.");
+
             entity.IsDeleted = true;
             dbSet.Update(entity);
             return true;
         }
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>> include = null)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>>? include = null)
         {
             return await dbContext.Set<T>().Where(predicate).ToListAsync();
         }
@@ -52,9 +45,8 @@ namespace Infrastructure.Repos
         {
             var entity = await dbSet.FindAsync(id);
             if (entity is not null && entity.IsDeleted)
-            {
-                entity = null;
-            }
+                throw new ArgumentException("Entity with the given ID has been deleted.");
+
             return entity;
         }
 

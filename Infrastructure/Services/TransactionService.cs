@@ -1,10 +1,5 @@
 ﻿using Core.Interfaces;
 using Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -17,6 +12,9 @@ namespace Infrastructure.Services
         }
         public async Task AddTransactionAsync(Payment payment)
         {
+            if (payment is null)
+                throw new ArgumentNullException(nameof(payment), "Payment cannot be null");
+
             await _paymentRepo.AddAsync(payment);
             await _paymentRepo.SaveAllAsync();
         }

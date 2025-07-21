@@ -13,24 +13,32 @@ namespace Infrastructure.Data.ModelConfigrations
     {
         public void Configure(EntityTypeBuilder<BaseUser> builder)
         {
-            
-            
+
+
             builder.Property(p => p.Email)
                 .IsRequired()
                 .HasMaxLength(50);
+                
             builder.Property(p => p.FirstName)
                 .HasMaxLength(35)
                 .IsRequired();
+
             builder.Property(p => p.LastName)
-                .IsRequired();
-            //builder.Property(p => p.PhoneNumber)
-            //    .IsRequired();
+                .IsRequired()
+                .HasMaxLength(35);
+
+            builder.Property(p => p.PhoneNumber)
+                .IsRequired()
+                .HasMaxLength(25);
+
             builder.Property(p => p.IsDeleted)
                 .IsRequired()
                 .HasDefaultValue(false);
+
             builder.Property(p => p.CreatedAt)
                 .IsRequired()
                 .HasDefaultValueSql("GETDATE()");
+
             builder.Property(p => p.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()")
                 .ValueGeneratedOnUpdate();

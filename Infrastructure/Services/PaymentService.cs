@@ -1,9 +1,11 @@
 ﻿using Core.Enums;
 using Core.Interfaces;
 using Core.Models;
+using Core.Settings;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 
@@ -11,20 +13,26 @@ namespace Infrastructure.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly IConfiguration config;
+        private readonly IOptions<StripeSettings> stripeSettings;
         private readonly ITransactionsService transactionsService;
+        private readonly IEmailService emailService;
+        private readonly ILogger logger;
         private readonly ICourse courseService;
         private readonly E_LearningDbContext _context;
-        public PaymentService(IConfiguration _config,
+        public PaymentService(
+            IOptions<StripeSettings> _stripeSettings,
             ITransactionsService transactionsService,
+            IEmailService _emailService,
             ICourse course,
+            ILogger _logger,
             E_LearningDbContext context)
         {
-            config = _config;
-            StripeConfiguration.ApiKey = config["Stripe:SecretKey"];
             this.transactionsService = transactionsService;
             courseService = course;
             _context = context;
+            stripeSettings = _stripeSettings;
+            emailService = _emailService;
+            logger = _logger;
         }
 
         public async Task<string> CreateCheckoutSessionAsync(string studentId, int courseId, decimal amount)
@@ -50,8 +58,7 @@ namespace Infrastructure.Services
                     }
                 },
                 Mode = "payment",
-                SuccessUrl = config["Stripe:SuccessUrl"],
-                CancelUrl = config["Stripe:CancelUrl"],
+                SuccessUrl = stripeSettings.Value.SuccessUrl,
                 Metadata = new Dictionary<string, string>
                 {
                     { "StudentId", studentId },
@@ -60,11 +67,10 @@ namespace Infrastructure.Services
             };
             var service = new SessionService();
             Session session = await service.CreateAsync(options);
-            Console.WriteLine("Session Created -----");
             return session.Url;
         }
 
-        public async Task HandelPaymentSuccessAsync(string sessionId)
+        public async Task HandlePaymentSuccessAsync(string sessionId)
         {
             var service = new SessionService();
             var session = await service.GetAsync(sessionId);
@@ -101,9 +107,7 @@ namespace Infrastructure.Services
                     .AnyAsync(c => c.ID == courseId);
 
                 if (existingEnrollment)
-                {
                     return; // Already enrolled
-                }
 
                 // Get student and course
                 var student = await _context.Set<StudentUser>()
@@ -114,19 +118,27 @@ namespace Infrastructure.Services
                     .FirstOrDefaultAsync(c => c.ID == courseId && !c.IsDeleted);
 
                 if (student == null || course == null)
-                {
                     throw new Exception($"Student {studentId} or Course {courseId} not found");
-                }
 
                 // Enroll student in course
+                if (student.EnrolledCourses == null)
+                    student.EnrolledCourses = new List<Course>();
+
                 student.EnrolledCourses.Add(course);
                 await _context.SaveChangesAsync();
+                await emailService.SendEmailWithTemplateAsync(student.Email, "تأكيد اشتراكك في الدورة التعليمية",
+                    "PaymentConfirmation", new Dictionary<string, string>
+                    {
+                        { "CourseName", course.Title },
+                        { "CoursePrice", course.SalePrice.ToString() ?? course.OriginalPrice.ToString("C")},
+                        { "InstructorName", course.Instructor.FirstName + " " + course.Instructor.LastName },
+                        { "PurchaseDate", DateTime.UtcNow.ToString() },                        
+                    });
             }
             catch (Exception ex)
             {
-                // Log the exception (you might want to use a proper logging framework)
-                Console.WriteLine($"Error enrolling student {studentId} in course {courseId}: {ex.Message}");
-                throw; // Re-throw to handle at higher level if needed
+                logger.LogError(ex, "Error enrolling student in course");
+                throw; 
             }
         }
     }

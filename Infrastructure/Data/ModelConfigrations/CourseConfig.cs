@@ -22,10 +22,11 @@ namespace Infrastructure.Data.ModelConfigrations
 
             builder.Property(p => p.Description)
                 .IsRequired()
-                .HasMaxLength(2000);
+                .HasMaxLength(1000);
 
             builder.Property(p => p.NuOfLessons)
                 .IsRequired();
+                
 
             builder.Property(p => p.OriginalPrice)
                 .IsRequired()

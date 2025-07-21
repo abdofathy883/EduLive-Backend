@@ -2,23 +2,20 @@
 using Core.Models;
 using Infrastructure.Configrations;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
     public class JWTService : IJWT
     {
         private readonly UserManager<BaseUser> userManager;
-        private readonly JwtSettings jwtSettings;
-        public JWTService(UserManager<BaseUser> manager, JwtSettings jwt)
+        private readonly IOptions<JwtSettings> jwtSettings;
+        public JWTService(UserManager<BaseUser> manager, IOptions<JwtSettings> jwt)
         {
             userManager = manager;
             jwtSettings = jwt;
@@ -38,14 +35,14 @@ namespace Infrastructure.Services
         }.Union(userClaims)
              .Union(roleClaims);
 
-            var symetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
+            var symetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.Key));
 
             var signingCredentials = new SigningCredentials(symetricSecurityKey, SecurityAlgorithms.HmacSha256);
             var jwtSecurityToken = new JwtSecurityToken(
-                issuer: jwtSettings.Issuer,
-                audience: jwtSettings.Audience,
+                issuer: jwtSettings.Value.Issuer,
+                audience: jwtSettings.Value.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(jwtSettings.ExpirationMinutes + 60),
+                expires: DateTime.UtcNow.AddMinutes(jwtSettings.Value.ExpirationMinutes + 60),
                 signingCredentials: signingCredentials
             );
 
@@ -62,7 +59,7 @@ namespace Infrastructure.Services
             {
                 Token = Convert.ToBase64String(randomNumber),
                 CreateOn = DateTime.UtcNow,
-                ExpiresOn = DateTime.UtcNow.AddDays(jwtSettings.RefreshTokenExpirationDays)
+                ExpiresOn = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)
             });
         }
     }

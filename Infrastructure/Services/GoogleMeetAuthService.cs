@@ -3,17 +3,10 @@ using Core.Interfaces;
 using Core.Models;
 using Core.Responses;
 using Core.Settings;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -24,7 +17,8 @@ namespace Infrastructure.Services
         private readonly ILogger<GoogleMeetAuthService> logger;
         private readonly IOptions<GoogleSettings> meetSettings;
 
-        public GoogleMeetAuthService(IGenericRepo<GoogleMeetUserAccount> genericRepo, 
+        public GoogleMeetAuthService(
+            IGenericRepo<GoogleMeetUserAccount> genericRepo, 
             IHttpClientFactory httpClientFactory, 
             ILogger<GoogleMeetAuthService> _logger, 
             IOptions<GoogleSettings> options)
@@ -37,33 +31,26 @@ namespace Infrastructure.Services
 
         public async Task<string> GetAccessTokenAsync(string userId)
         {
-            var account = await repo.GetByIdAsync(userId);
-
-            if (account == null)
-                throw new InvalidOperationException("No connected Google Meet account for this user.");
+            var account = await repo.GetByIdAsync(userId)
+                ?? throw new InvalidOperationException($"No Google Account was found for user: {userId}");
 
             // Check if token needs refresh
             if (account.TokenExpiry <= DateTime.UtcNow.AddMinutes(5))
-            {
                 return await RefreshAccessTokenAsync(userId);
-            }
 
             return account.AccessToken;
         }
 
         public async Task<GoogleMeetAccountDTO> GetUserConnectionAsync(string userId)
         {
-            var account = await repo.GetByIdAsync(userId);
-
-            if (account == null)
-            {
-                throw new ArgumentNullException(userId, "No connected Google Meet account for this user.");
-            }
+            var account = await repo.GetByIdAsync(userId)
+                ?? throw new ArgumentNullException(userId, "No connected Google Meet account for this user.");
 
             if (account.TokenExpiry <= DateTime.UtcNow.AddMinutes(5))
             {
                 await RefreshAccessTokenAsync(userId);
-                account = await repo.GetByIdAsync(userId);
+                account = await repo.GetByIdAsync(userId)
+                    ?? throw new InvalidOperationException($"Failed to refresh access token for user: {userId}");
             }
 
             return new GoogleMeetAccountDTO
@@ -76,21 +63,19 @@ namespace Infrastructure.Services
             };
         }
 
-        public string GetAuthorizationUrl()
+        public string GetAuthorizationUrlAsync()
         {
             var clientId = meetSettings.Value.ClientId;
             var redirectUri = meetSettings.Value.RedirectUrl;
             var scope = "https://www.googleapis.com/auth/calendar";
 
-            var authUrl = $"https://accounts.google.com/o/oauth2/v2/auth?" +
+            return $"https://accounts.google.com/o/oauth2/v2/auth?" +
                           $"client_id={clientId}&" +
                           $"redirect_uri={redirectUri}&" +
                           $"response_type=code&" +
                           $"scope={scope}&" +
                           $"access_type=offline&" +
                           $"prompt=consent";
-
-            return authUrl;
         }
 
         public async Task<GoogleMeetAccountDTO> HandleAuthCallbackAsync(string code, string userId)
@@ -140,11 +125,8 @@ namespace Infrastructure.Services
 
         public async Task<string> RefreshAccessTokenAsync(string userId)
         {
-            var account = await repo.GetByIdAsync(userId);
-            if (account == null)
-            {
-                throw new InvalidOperationException($"No Google Account was found for user: {userId}");
-            }
+            var account = await repo.GetByIdAsync(userId)
+                ?? throw new InvalidOperationException($"No Google Account was found for user: {userId}");
 
             var clientId = meetSettings.Value.ClientId;
             var clientSecret = meetSettings.Value.ClientSecret;
@@ -162,17 +144,17 @@ namespace Infrastructure.Services
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            var token = JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content);
+            var token = JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content)
+                ?? throw new InvalidOperationException("Failed to deserialize token response");
 
             account.AccessToken = token.AccessToken;
             if (!string.IsNullOrEmpty(token.RefreshToken))
-            {
                 account.RefreshToken = token.RefreshToken;
-            }
+
             account.TokenExpiry = DateTime.UtcNow.AddSeconds(token.ExpiresIn);
             account.UpdatedAt = DateTime.UtcNow;
 
-            //await repo.Update(account);
+            repo.Update(account);
             await repo.SaveAllAsync();
 
             return account.AccessToken;
@@ -199,7 +181,8 @@ namespace Infrastructure.Services
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content);
+            return JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content)
+                ?? throw new InvalidOperationException("Failed to deserialize token response");
         }
 
         public async Task<GoogleMeetAuthResponse> GetUserInfoAsync(string accessToken)
@@ -211,7 +194,8 @@ namespace Infrastructure.Services
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            var userInfo = JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content);
+            var userInfo = JsonSerializer.Deserialize<GoogleMeetAuthResponse>(content)
+                ?? throw new InvalidOperationException("Failed to deserialize user info response");
 
             return userInfo;
         }

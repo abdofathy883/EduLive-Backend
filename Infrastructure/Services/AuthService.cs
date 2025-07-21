@@ -2,14 +2,7 @@
 using Core.Enums;
 using Core.Interfaces;
 using Core.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -17,22 +10,32 @@ namespace Infrastructure.Services
     {
         private readonly MediaUploadsService uploadsService;
         private readonly UserManager<BaseUser> userManager;
+        private readonly IEmailService emailService;
         private readonly IJWT jWT;
-        public AuthService(MediaUploadsService images, UserManager<BaseUser> manager, IJWT _jWT)
+        public AuthService(
+            MediaUploadsService images, 
+            UserManager<BaseUser> manager, IJWT _jWT, 
+            IEmailService _emailService
+            )
         {
             uploadsService = images;
             userManager = manager;
             jWT = _jWT;
+            emailService = _emailService;
         }
         public async Task<AuthDTO> InstructorRegisterAsync(InstructorRegisterDTO registerDTO)
         {
+            if (registerDTO is null) 
+                throw new ArgumentNullException(nameof(registerDTO), "Register DTO cannot be null");
+
             var validateErrors = await ValidateInstructorRegisterAsync(registerDTO);
             if (validateErrors is not null && validateErrors.Count > 0)
-            {
                 return FailResult(string.Join(", ", validateErrors));
-            }
 
             // Convert the VideoPath (string) to an IFormFile before calling UploadVideo
+            if (registerDTO.CvPath is null || registerDTO.VideoPath is null)
+                return FailResult("الرجاء تحميل السيرة الذاتية وفيديو التعريف");
+
             var cv = await uploadsService.UploadPDF(registerDTO.CvPath, registerDTO.FirstName + registerDTO.LastName);
             var video = await uploadsService.UploadVideo(registerDTO.VideoPath, registerDTO.FirstName + registerDTO.LastName);
             var user = new InstructorUser
@@ -52,21 +55,33 @@ namespace Infrastructure.Services
 
             var result = await userManager.CreateAsync(user, registerDTO.Password);
             if (!result.Succeeded)
-            {
-                return FailResult(string.Join(", ", validateErrors));
-            }
+                return FailResult(string.Join(", ", validateErrors ?? new List<string>()));
+
             await userManager.AddToRoleAsync(user, UserRoles.Instructor.ToString());
 
-            var authDTO = new AuthDTO
+            var replacements = new Dictionary<string, string>
+            {
+                { "FirstName", user.FirstName },
+                { "LastName", user.LastName },
+                { "Email", user.Email },
+                { "PhoneNumber", user.PhoneNumber ?? string.Empty },
+                { "Bio", user.Bio ?? string.Empty }
+            };
+
+            await emailService.SendEmailWithTemplateAsync(user.Email, "تم تسجيل حساب معلم جديد في منصة تحفيظ قران", "InstructorRegistrationConfirmation", replacements);
+
+            return new AuthDTO
             {
                 IsAuthenticated = true,
                 Message = "تم استلام طلبكم وسيتم التواصل معكم قريبا"
             };
-            return authDTO;
         }
 
         public async Task<AuthDTO> LoginAsync(LoginDTO loginDTO)
         {
+            if (loginDTO == null)
+                throw new ArgumentNullException(nameof(loginDTO), "Login DTO cannot be null");
+
             var authDto = new AuthDTO();
             var user = await userManager.FindByEmailAsync(loginDTO.Email);
 
@@ -90,8 +105,8 @@ namespace Infrastructure.Services
             authDto.UserId = user.Id;
             authDto.FirstName = user.FirstName;
             authDto.LastName = user.LastName;
-            authDto.PhoneNumber = user.PhoneNumber;
-            authDto.DateOfBirth = (DateOnly)user.DateOfBirth;
+            authDto.PhoneNumber = user.PhoneNumber ?? string.Empty;
+            authDto.DateOfBirth = user.DateOfBirth ?? default;
             var roles = await userManager.GetRolesAsync(user);
             authDto.Roles = roles.ToList();
             authDto.Token = await jWT.GenerateAccessTokenAsync(user);
@@ -113,28 +128,71 @@ namespace Infrastructure.Services
             }
             if (user is InstructorUser instructor)
             {
-                authDto.CV = instructor.CVPath;
-                authDto.IntroVideo = instructor.IntroVideoPath;
-                authDto.Bio = instructor.Bio;
+                authDto.CV = instructor.CVPath ?? string.Empty;
+                authDto.IntroVideo = instructor.IntroVideoPath ?? string.Empty;
+                authDto.Bio = instructor.Bio ?? string.Empty;
                 authDto.IsApproved = instructor.IsApproved;
             }
             authDto.Message = "تم تسجيل الدخول بنجاح";
-            Console.WriteLine($"ConcurrencyStamp: {user.ConcurrencyStamp}");
             return authDto;
         }
 
-        public Task<AuthDTO> RefreshTokenAsync(string token)
+        public async Task<AuthDTO> RefreshTokenAsync(string token)
         {
-            throw new NotImplementedException();
+            var user = userManager.Users.FirstOrDefault(u => u.RefreshTokens.Any(rt => rt.Token == token));
+            if (user == null)
+                return FailResult("Invalid refresh token.");
+
+            var refreshToken = user.RefreshTokens.FirstOrDefault(rt => rt.Token == token);
+            if (refreshToken == null || !refreshToken.IsActive)
+                return FailResult("Refresh token is expired or revoked.");
+
+            // Revoke the old refresh token
+            refreshToken.RevokedOn = DateTime.UtcNow;
+
+            // Generate new tokens
+            var newAccessToken = await jWT.GenerateAccessTokenAsync(user);
+            var newRefreshToken = await jWT.GenerateRefreshTokenAsync();
+
+            user.RefreshTokens.Add(newRefreshToken);
+            await userManager.UpdateAsync(user);
+
+            var authDto = new AuthDTO
+            {
+                IsAuthenticated = true,
+                UserId = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                DateOfBirth = user.DateOfBirth ?? default,
+                Roles = (await userManager.GetRolesAsync(user)).ToList(),
+                Token = newAccessToken,
+                RefreshToken = newRefreshToken.Token,
+                RefreshTokenExpiration = newRefreshToken.ExpiresOn,
+                Message = "Token refreshed successfully"
+            };
+
+            if (user is InstructorUser instructor)
+            {
+                authDto.CV = instructor.CVPath ?? string.Empty;
+                authDto.IntroVideo = instructor.IntroVideoPath ?? string.Empty;
+                authDto.Bio = instructor.Bio ?? string.Empty;
+                authDto.IsApproved = instructor.IsApproved;
+            }
+
+            return authDto;
         }
 
         public async Task<AuthDTO> RegisterAsync(RegisterDTO registerDTO)
         {
+            if (registerDTO is null)
+                throw new ArgumentNullException(nameof(registerDTO), "Register DTO cannot be null");
+            
             var validateErrors = await ValidateRegisterAsync(registerDTO);
             if (validateErrors is not null && validateErrors.Count > 0)
-            {
                 return FailResult(string.Join(", ", validateErrors));
-            }
 
             var user = new StudentUser
             {
@@ -150,17 +208,25 @@ namespace Infrastructure.Services
 
             //Add Role
             if (!result.Succeeded)
-            {
-                return FailResult(string.Join(", ", validateErrors));
-            }
+                return FailResult(string.Join(", ", validateErrors ?? new List<string>()));
+
             await userManager.AddToRoleAsync(user, UserRoles.Student.ToString());
 
-            var authDTO = new AuthDTO
+            var replacements = new Dictionary<string, string>
+            {
+                { "FirstName", user.FirstName },
+                { "LastName", user.LastName },
+                { "Email", user.Email },
+                { "PhoneNumber", user.PhoneNumber ?? string.Empty }
+            };
+
+            await emailService.SendEmailWithTemplateAsync(user.Email, "تم تسجيل حساب طالب جديد في منصة تحفيظ قران", "StudentRegistrationConfirmation", replacements);
+
+            return new AuthDTO
             {
                 IsAuthenticated = true,
                 Message = "تم تسجيل حساب جديد بنجاح, يمكنك تسجيل دخول"
             };
-            return authDTO;
         }
 
         public async Task<List<string>> ValidateRegisterAsync(RegisterDTO registerDTO)
@@ -186,12 +252,6 @@ namespace Infrastructure.Services
             {
                 errors.Add("الرقم السري يجب ان يكون 6 احرف على الاقل");
             }
-
-            //Confirm Password
-            //if (registerDTO.Password != registerDTO.ConfirmPassword)
-            //{
-            //    errors.Add("كلمة المرور غير متطابقة");
-            //}
 
             //Phone 
             if (string.IsNullOrWhiteSpace(registerDTO.PhoneNumber))
@@ -235,12 +295,6 @@ namespace Infrastructure.Services
                 errors.Add("الرقم السري يجب ان يكون 6 احرف على الاقل");
             }
 
-            //Confirm Password
-            //if (registerDTO.Password != registerDTO.ConfirmPassword)
-            //{
-            //    errors.Add("كلمة المرور غير متطابقة");
-            //}
-
             //Phone 
             if (string.IsNullOrWhiteSpace(registerDTO.PhoneNumber))
             {
@@ -270,16 +324,20 @@ namespace Infrastructure.Services
 
         public async Task<AuthDTO> UpdateUserAsync(string userId, UpdateUserDTO updatedUser)
         {
-            var user = await userManager.FindByIdAsync(userId);
-            if (user is null || user.IsDeleted)
-            {
-                throw new KeyNotFoundException("User cannot be found or has been deleted");
-            }
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentNullException(nameof(userId), "User ID cannot be null or empty");
+
+            if (updatedUser is null)
+                throw new ArgumentNullException(nameof(updatedUser), "Updated user data cannot be null");
+
+            var user = await userManager.FindByIdAsync(userId)
+                ?? throw new KeyNotFoundException("User not found");
+
+            if (user.IsDeleted)
+                throw new KeyNotFoundException("User has been deleted");
 
             if (!string.IsNullOrEmpty(updatedUser.ConcurrencyStamp))
-            {
                 user.ConcurrencyStamp = updatedUser.ConcurrencyStamp;
-            }
 
             user.FirstName = updatedUser.FirstName ?? user.FirstName;
             user.LastName = updatedUser.LastName ?? user.LastName;
@@ -293,34 +351,38 @@ namespace Infrastructure.Services
                     throw new InvalidOperationException("Failed to update email: " + string.Join(", ", changeEmailResult.Errors.Select(e => e.Description)));
                 }
             }
-            //if (user is InstructorUser)
-            //{
-            //    user.
-            //}
             user.UpdatedAt = DateTime.UtcNow;
 
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)
-            {
                 throw new InvalidOperationException("Failed to update user: " + string.Join(", ", result.Errors.Select(e => e.Description)));
-            }
 
-            var authDTO = new AuthDTO
+            var replacements = new Dictionary<string, string>
+            {
+                { "FirstName", user.FirstName },
+                { "LastName", user.LastName },
+                { "Email", user.Email },
+                { "PhoneNumber", user.PhoneNumber ?? string.Empty }
+            };
+
+            await emailService.SendEmailWithTemplateAsync(user.Email, "تم تحديث بياناتك في منصة تحفيظ قران بنجاح", "UpdateProfileConfirmation", replacements);
+
+            return new AuthDTO
             {
                 IsAuthenticated = true,
                 Message = "تم تحديث بياناتك بنجاح", 
             };
-            return authDTO;
         }
 
         public async Task<UserDTO> GetUserByIDAsync(string userId)
         {
-            var user = await userManager.FindByIdAsync(userId);
-            if (user is null || user.IsDeleted)
-            {
-                return null;
-            }
-            var userDTO = new UserDTO
+            var user = await userManager.FindByIdAsync(userId)
+                ?? throw new KeyNotFoundException("User not found");
+
+            if (user.IsDeleted)
+                throw new KeyNotFoundException("User has been deleted");
+
+            return new UserDTO
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
@@ -329,25 +391,23 @@ namespace Infrastructure.Services
                 DateOfBirth = user.DateOfBirth,
                 ConcurrencyStamp = user.ConcurrencyStamp
             };
-            return userDTO;
         }
 
         public async Task<InstructorUser> GetInstructorByIdAsync(string instructorId)
         {
-            var instructor = await userManager.FindByIdAsync(instructorId);
-            if (instructor is null || instructor.IsDeleted)
-            {
-                throw new KeyNotFoundException("Instructor not found or has been deleted");
-            }
+            var instructor = await userManager.FindByIdAsync(instructorId)
+                ?? throw new KeyNotFoundException("Instructor not found");
+
+            if (instructor.IsDeleted)
+                throw new KeyNotFoundException("Instructor has been deleted");
+
             return (InstructorUser)instructor;
         }
         public async Task<bool> DeleteUserAsync(string userId)
         {
-            var user = await userManager.FindByIdAsync(userId);
-            if (user is null)
-            {
-                return false;
-            }
+            var user = await userManager.FindByIdAsync(userId)
+                ?? throw new KeyNotFoundException("User not found");
+
             user.IsDeleted = true;
             user.UpdatedAt = DateTime.UtcNow;
             var result = await userManager.UpdateAsync(user);

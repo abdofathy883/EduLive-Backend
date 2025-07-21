@@ -12,7 +12,9 @@ namespace Infrastructure.SignalR
         }
         public async Task SendMessageAsync(string reciverId, string message)
         {
-            var senderid = Context.UserIdentifier;
+            var senderid = Context.UserIdentifier
+                ?? throw new ArgumentNullException(nameof(Context.UserIdentifier), "User identifier is null");
+
             await chatService.SendMessageAsync(senderid, reciverId, message);
             await Clients.User(reciverId).SendAsync("ReceiveMessage", senderid, message, DateTime.UtcNow);
         }

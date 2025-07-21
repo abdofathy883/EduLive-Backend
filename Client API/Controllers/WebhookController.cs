@@ -25,7 +25,7 @@ namespace Client_API.Controllers
             if (stripeEvent.Type == "Checkout.Session.Completed")
             {
                 var session = stripeEvent.Data.Object as Session;
-                await paymentService.HandelPaymentSuccessAsync(session.Id);
+                await paymentService.HandlePaymentSuccessAsync(session.Id);
             }
             return Ok(new { Message = "Webhook received successfully." });
         }

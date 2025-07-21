@@ -1,13 +1,6 @@
-﻿using Azure.Messaging;
-using Core.Interfaces;
+﻿using Core.Interfaces;
 using Core.Models;
 using Microsoft.AspNetCore.Identity;
-using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -30,11 +23,9 @@ namespace Infrastructure.Services
             var purchasedCourses = await courseRepo
             .FindAsync(c => c.EnrolledStudents.Any(s => s.Id == studentId));
 
-            var instructors = purchasedCourses
+            return purchasedCourses
                 .Select(c => c.Instructor)
                 .Distinct();
-
-            return instructors;
         }
 
         public async Task<IEnumerable<Message>> GetConversationAsync(string user1Id, string user2Id)
@@ -43,7 +34,6 @@ namespace Infrastructure.Services
             .FindAsync(m =>
                 (m.SenderId == user1Id && m.ReceiverId == user2Id) ||
                 (m.SenderId == user2Id && m.ReceiverId == user1Id)
-                //orderBy: q => q.OrderBy(m => m.SentAt)
             );
         }
 
